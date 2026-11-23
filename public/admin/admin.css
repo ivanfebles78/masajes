@@ -1,0 +1,102 @@
+/* Panel de administración: misma tinta y papel, más denso y funcional. */
+.admin { min-height: 100vh; }
+.admin h1 { font-size: clamp(1.8rem, 1.3rem + 2vw, 2.8rem); }
+.admin h2 { font-size: 1.4rem; margin-bottom: 1.2rem; }
+
+.acceso { display: grid; place-items: center; min-height: 100vh; padding: 1.5rem; }
+.acceso__caja {
+  width: min(100%, 24rem); padding: 2.4rem 2rem;
+  background: var(--blanco-roto); border: 1px solid var(--linea);
+  box-shadow: 12px 12px 0 var(--tinta);
+}
+.acceso__caja h1 { margin: 1.2rem 0 1.6rem; }
+.acceso__volver { display: inline-block; margin-top: 1.4rem; font-size: 0.9rem; color: var(--tinta-suave); }
+
+.barra {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 2rem;
+  padding: 0.8rem var(--margen); background: var(--tinta); color: var(--papel);
+}
+.barra__titulo { display: flex; align-items: center; gap: 0.7rem; font-family: var(--serif); font-weight: 800; font-size: 1.1rem; }
+.barra .boton { padding: 0.6rem 1rem; margin-left: auto; }
+.barra .boton--linea:hover { background: var(--papel); color: var(--tinta); border-color: var(--papel); }
+.pestanas { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.pestanas button {
+  font: 700 0.92rem/1 var(--sans); padding: 0.7rem 1rem; cursor: pointer;
+  background: transparent; color: #cfc6b6; border: 0; border-bottom: 3px solid transparent;
+  transition: color var(--rapido), border-color var(--rapido);
+}
+.pestanas button:hover { color: var(--papel); }
+.pestanas button[aria-selected='true'] { color: var(--papel); border-bottom-color: var(--bermellon); }
+
+.lienzo { padding: clamp(1.5rem, 4vw, 3rem) var(--margen) 5rem; max-width: 72rem; }
+.titulo-seccion { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem 2rem; margin-bottom: 2rem; }
+.titulo-seccion .nota { margin: 0; max-width: 40ch; }
+
+.filtro { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.8rem; }
+.filtro label { display: grid; gap: 0.3rem; }
+.filtro input, .filtro select { padding: 0.6rem 0.7rem; }
+.filtro .boton { padding: 0.78rem 1.1rem; }
+.filtro__marca { display: flex !important; align-items: center; gap: 0.4rem; padding-bottom: 0.7rem; }
+.filtro__marca input { width: 1.1rem; height: 1.1rem; accent-color: var(--bermellon); }
+
+/* Citas agrupadas por día */
+.dia-citas { margin-bottom: 2.4rem; }
+.dia-citas__fecha {
+  display: flex; align-items: baseline; gap: 0.8rem;
+  font-family: var(--serif); font-size: 1.35rem; font-weight: 600;
+  padding-bottom: 0.5rem; border-bottom: 2px solid var(--tinta);
+}
+.dia-citas__fecha small { font: 500 0.8rem var(--sans); color: var(--tinta-suave); text-transform: none; }
+.cita {
+  display: grid; grid-template-columns: 6.5rem minmax(0, 1.1fr) minmax(0, 1.3fr) auto; align-items: center; gap: 0.4rem 1.2rem;
+  padding: 0.9rem 0.4rem; border-bottom: 1px solid var(--linea);
+  transition: background-color var(--rapido);
+}
+.cita:hover { background: var(--blanco-roto); }
+.cita__hora { font-family: var(--serif); font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.cita__hora small { display: block; font: 500 0.75rem var(--sans); color: var(--tinta-suave); }
+.cita__nombre { font-weight: 700; }
+.cita__servicio { font-size: 0.86rem; color: var(--musgo); font-weight: 700; }
+.cita__contacto { font-size: 0.9rem; color: var(--tinta-suave); overflow-wrap: anywhere; }
+.cita__contacto a { color: inherit; }
+.cita.es-cancelada { opacity: 0.5; }
+.cita.es-cancelada .cita__hora, .cita.es-cancelada .cita__nombre { text-decoration: line-through; }
+.etiquetas { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.3rem; }
+.etiqueta { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 0.2rem 0.5rem; border-radius: 999px; background: var(--papel-hondo); }
+.etiqueta--enviado { background: #dfe6d5; color: #3a4a2c; }
+.etiqueta--simulado { background: #f1e3bf; color: #6a5312; }
+.etiqueta--error { background: #f7dcd4; color: var(--bermellon-hondo); }
+.boton-mini {
+  font: 700 0.8rem/1 var(--sans); padding: 0.55rem 0.8rem; cursor: pointer;
+  background: transparent; color: var(--bermellon-hondo); border: 1.5px solid currentColor; border-radius: 2px;
+  transition: background-color var(--rapido), color var(--rapido);
+}
+.boton-mini:hover { background: var(--bermellon); color: var(--blanco-roto); border-color: var(--bermellon); }
+.vacio { padding: 2.5rem 1rem; text-align: center; font-family: var(--serif); font-size: 1.2rem; color: var(--tinta-suave); border: 1.5px dashed var(--linea); }
+
+/* Horario */
+.tabla-horario { display: grid; gap: 0.2rem; margin-bottom: 1.8rem; }
+.fila-horario { display: grid; grid-template-columns: 8rem 1fr 1fr; gap: 1rem; align-items: center; padding: 0.8rem 0; border-bottom: 1px solid var(--linea); }
+.fila-horario__dia { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; }
+.turno-edit { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.turno-edit label { display: flex; align-items: center; gap: 0.4rem; min-width: 5.6rem; }
+.turno-edit input[type='checkbox'] { width: 1.1rem; height: 1.1rem; accent-color: var(--bermellon); }
+.turno-edit input[type='time'] { width: auto; padding: 0.5rem 0.6rem; }
+.turno-edit.es-inactivo input[type='time'] { opacity: 0.4; }
+
+.lista-bloqueos { list-style: none; padding: 0; margin: 2rem 0 0; }
+.lista-bloqueos li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem 1rem; padding: 0.9rem 0; border-bottom: 1px solid var(--linea); }
+.lista-bloqueos strong { font-family: var(--serif); font-size: 1.1rem; }
+.lista-bloqueos span { color: var(--tinta-suave); font-size: 0.9rem; }
+
+.dos-columnas { display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; align-items: start; }
+.tarjeta { padding: 1.8rem; background: var(--blanco-roto); border: 1px solid var(--linea); box-shadow: 8px 8px 0 var(--papel-hondo); }
+
+@media (max-width: 780px) {
+  .cita { grid-template-columns: 5rem 1fr; }
+  .cita__contacto, .cita__accion { grid-column: 2; }
+  .fila-horario { grid-template-columns: 1fr; gap: 0.5rem; }
+  .dos-columnas { grid-template-columns: 1fr; }
+  .barra .boton { margin-left: 0; }
+}

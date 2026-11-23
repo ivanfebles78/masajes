@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shiatsu y masaje en Pamplona · Reserva tu cita</title>
+  <meta name="description" content="Shiatsu y masaje en camilla en Pamplona. Reserva tu cita online en un minuto: elige día, turno y hora.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+  <a class="salto" href="#reservar">Ir a la reserva</a>
+
+  <header class="cabecera">
+    <a class="marca" href="/" aria-label="Inicio">
+      <span class="marca__sello" aria-hidden="true">指</span>
+      <span class="marca__nombre" data-salon>Shiatsu Pamplona</span>
+    </a>
+    <nav aria-label="Navegación principal">
+      <a href="#masajes">Masajes</a>
+      <a href="#horario">Horario</a>
+      <a class="boton boton--tinta" href="#reservar">Reservar</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="portada" aria-labelledby="titulo-portada">
+      <div class="portada__texto">
+        <p class="antetitulo">Pamplona · Iruña</p>
+        <h1 id="titulo-portada">Manos que <em>escuchan</em> al cuerpo.</h1>
+        <p class="portada__entrada">
+          Shiatsu tradicional y masaje en camilla, sin prisas. Una sesión larga,
+          una sola persona atendiéndote y el tiempo que tu espalda lleva pidiendo.
+        </p>
+        <div class="portada__acciones">
+          <a class="boton boton--bermellon" href="#reservar">Reservar cita</a>
+          <a class="enlace-flecha" href="#masajes">Ver los masajes</a>
+        </div>
+      </div>
+      <div class="portada__arte" aria-hidden="true">
+        <svg class="enso" viewBox="0 0 400 400" role="presentation">
+          <path d="M318 96C262 28 150 22 86 88 22 154 26 262 92 322c66 60 172 56 232-10 44-48 54-118 30-176"
+                fill="none" stroke="currentColor" stroke-width="26" stroke-linecap="round"/>
+          <path d="M350 130c4 10 6 16 8 26" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round" opacity=".55"/>
+        </svg>
+        <span class="portada__kanji">指圧</span>
+      </div>
+    </section>
+
+    <section class="masajes" id="masajes" aria-labelledby="titulo-masajes">
+      <p class="antetitulo">Los masajes</p>
+      <h2 id="titulo-masajes">Dos maneras de soltar.</h2>
+      <div class="masajes__rejilla">
+        <article class="ficha ficha--grande">
+          <span class="ficha__numero">一</span>
+          <h3>Shiatsu</h3>
+          <p class="ficha__duracion">90 minutos</p>
+          <p>
+            Presión con pulgares, palmas y codos a lo largo del cuerpo, con
+            estiramientos suaves. Se recibe vestido, sobre futón, con ropa cómoda.
+          </p>
+        </article>
+        <article class="ficha ficha--desplazada">
+          <span class="ficha__numero">二</span>
+          <h3>Masaje en camilla</h3>
+          <p class="ficha__duracion">60 o 90 minutos</p>
+          <p>
+            Trabajo manual sobre camilla para descargar la musculatura. Tú eliges
+            si quieres una hora o una sesión larga de hora y media.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="reserva" id="reservar" aria-labelledby="titulo-reserva">
+      <div class="reserva__cabecera">
+        <p class="antetitulo antetitulo--claro">Cita online</p>
+        <h2 id="titulo-reserva">Reserva en un minuto.</h2>
+        <p>Dinos qué masaje quieres y cuándo te viene bien. No se paga nada por adelantado.</p>
+      </div>
+
+      <div class="reserva__panel" id="panel-reserva">
+        <p class="aviso" id="aviso-general" role="alert" hidden></p>
+
+        <ol class="pasos" id="pasos">
+          <li class="paso" id="paso-masaje">
+            <h3><span class="paso__n">1</span> ¿Qué masaje quieres?</h3>
+            <div class="opciones" id="lista-servicios" role="group" aria-label="Tipo de masaje"></div>
+          </li>
+
+          <li class="paso" id="paso-dia" hidden>
+            <h3><span class="paso__n">2</span> ¿Qué día te viene bien?</h3>
+            <div class="calendario">
+              <div class="calendario__barra">
+                <button type="button" class="calendario__mover" id="mes-anterior" aria-label="Mes anterior">←</button>
+                <p class="calendario__mes" id="mes-titulo" aria-live="polite"></p>
+                <button type="button" class="calendario__mover" id="mes-siguiente" aria-label="Mes siguiente">→</button>
+              </div>
+              <div class="calendario__semana" aria-hidden="true">
+                <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span>
+              </div>
+              <div class="calendario__dias" id="dias" role="group" aria-label="Días disponibles para reservar"></div>
+            </div>
+          </li>
+
+          <li class="paso" id="paso-turno" hidden>
+            <h3><span class="paso__n">3</span> ¿Mañana o tarde?</h3>
+            <div class="opciones opciones--dos" id="lista-turnos" role="group" aria-label="Turno"></div>
+          </li>
+
+          <li class="paso" id="paso-hora" hidden>
+            <h3><span class="paso__n">4</span> Elige la hora</h3>
+            <div id="zona-huecos" aria-live="polite"></div>
+          </li>
+
+          <li class="paso" id="paso-datos" hidden>
+            <h3><span class="paso__n">5</span> Tus datos</h3>
+            <p class="resumen" id="resumen"></p>
+            <form id="form-datos" novalidate>
+              <div class="campo">
+                <label for="nombre">Nombre</label>
+                <input id="nombre" name="nombre" type="text" autocomplete="name" maxlength="80" required>
+              </div>
+              <div class="campos-dos">
+                <div class="campo">
+                  <label for="telefono">Teléfono</label>
+                  <input id="telefono" name="telefono" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="612 345 678">
+                </div>
+                <div class="campo">
+                  <label for="email">Correo electrónico</label>
+                  <input id="email" name="email" type="email" autocomplete="email" maxlength="120" placeholder="tu@correo.es">
+                </div>
+              </div>
+              <p class="nota">Con uno de los dos nos vale. Te enviamos la confirmación a lo que nos dejes.</p>
+              <fieldset class="canal" id="campo-canal" hidden>
+                <legend>¿Cómo prefieres el aviso al móvil?</legend>
+                <label class="pastilla"><input type="radio" name="canal" value="whatsapp" checked><span>WhatsApp</span></label>
+                <label class="pastilla"><input type="radio" name="canal" value="sms"><span>SMS</span></label>
+              </fieldset>
+              <div class="trampa" aria-hidden="true">
+                <label for="web">No rellenes este campo</label>
+                <input id="web" name="web" type="text" tabindex="-1" autocomplete="off">
+              </div>
+              <p class="aviso" id="aviso-datos" role="alert" hidden></p>
+              <button class="boton boton--bermellon boton--ancho" type="submit" id="boton-confirmar">Confirmar cita</button>
+              <p class="nota">Usamos tus datos solo para gestionar esta cita.</p>
+            </form>
+          </li>
+        </ol>
+
+        <div class="confirmada" id="confirmada" hidden tabindex="-1">
+          <span class="confirmada__sello" aria-hidden="true">予約</span>
+          <h3>Cita confirmada</h3>
+          <p class="confirmada__cuando" id="confirmada-cuando"></p>
+          <ul class="confirmada__avisos" id="confirmada-avisos"></ul>
+          <button type="button" class="boton boton--linea" id="otra-cita">Reservar otra cita</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="horario" id="horario" aria-labelledby="titulo-horario">
+      <div>
+        <p class="antetitulo">Horario</p>
+        <h2 id="titulo-horario">Cuándo abrimos.</h2>
+        <p class="horario__direccion" data-direccion></p>
+        <p class="horario__telefono" data-telefono hidden></p>
+      </div>
+      <dl class="horario__tabla" id="tabla-horario"></dl>
+    </section>
+  </main>
+
+  <footer class="pie">
+    <p><span data-salon>Shiatsu Pamplona</span> · Pamplona</p>
+    <a href="/admin/">Acceso administración</a>
+  </footer>
+
+  <script type="module" src="/js/reserva.js"></script>
+</body>
+</html>

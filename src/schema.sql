@@ -1,0 +1,61 @@
+-- Esquema idempotente: se ejecuta en cada arranque.
+
+CREATE TABLE IF NOT EXISTS administradores (
+  id             SERIAL PRIMARY KEY,
+  usuario        TEXT NOT NULL UNIQUE,
+  clave_hash     TEXT NOT NULL,
+  version_clave  INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE IF NOT EXISTS horario (
+  dia_semana  SMALLINT NOT NULL CHECK (dia_semana BETWEEN 1 AND 7),
+  turno       TEXT NOT NULL CHECK (turno IN ('manana', 'tarde')),
+  inicio      TEXT NOT NULL,
+  fin         TEXT NOT NULL,
+  activo      BOOLEAN NOT NULL DEFAULT TRUE,
+  PRIMARY KEY (dia_semana, turno)
+);
+
+CREATE TABLE IF NOT EXISTS dias_bloqueados (
+  id      SERIAL PRIMARY KEY,
+  fecha   DATE NOT NULL,
+  turno   TEXT CHECK (turno IN ('manana', 'tarde')),
+  motivo  TEXT NOT NULL DEFAULT ''
+);
+CREATE INDEX IF NOT EXISTS dias_bloqueados_fecha ON dias_bloqueados (fecha);
+
+CREATE TABLE IF NOT EXISTS ajustes (
+  clave  TEXT PRIMARY KEY,
+  valor  TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS citas (
+  id         SERIAL PRIMARY KEY,
+  fecha      DATE NOT NULL,
+  hora       TEXT NOT NULL,
+  turno      TEXT NOT NULL CHECK (turno IN ('manana', 'tarde')),
+  servicio   TEXT NOT NULL,
+  duracion_min INTEGER NOT NULL CHECK (duracion_min BETWEEN 15 AND 240),
+  nombre     TEXT NOT NULL,
+  telefono   TEXT,
+  email      TEXT,
+  canal      TEXT CHECK (canal IN ('whatsapp', 'sms')),
+  estado     TEXT NOT NULL DEFAULT 'confirmada' CHECK (estado IN ('confirmada', 'cancelada')),
+  creada_en  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+-- Red de seguridad: nunca dos citas confirmadas con la misma hora de inicio.
+-- Los solapes entre duraciones distintas se evitan con un bloqueo por fecha
+-- al crear la cita (ver servicio.js).
+CREATE UNIQUE INDEX IF NOT EXISTS citas_hueco_unico
+  ON citas (fecha, hora) WHERE estado = 'confirmada';
+
+CREATE TABLE IF NOT EXISTS notificaciones (
+  id         SERIAL PRIMARY KEY,
+  cita_id    INTEGER NOT NULL REFERENCES citas (id) ON DELETE CASCADE,
+  canal      TEXT NOT NULL,
+  destino    TEXT NOT NULL,
+  estado     TEXT NOT NULL,
+  detalle    TEXT NOT NULL DEFAULT '',
+  creada_en  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS notificaciones_cita ON notificaciones (cita_id);
