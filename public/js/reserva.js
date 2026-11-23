@@ -284,14 +284,22 @@ function reiniciar() {
 
 /* ---------- Información general ---------- */
 function pintarHorario() {
-  const filas = DIAS.map((nombre, i) => {
-    const tramos = info.horario
+  // Los días seguidos con el mismo horario se muestran juntos: «Lunes – Viernes».
+  const grupos = [];
+  DIAS.forEach((nombre, i) => {
+    const texto = info.horario
       .filter((h) => h.dia === i + 1 && h.activo)
-      .map((h) => `${h.inicio} – ${h.fin}`);
-    return el('div', { class: `horario__fila${tramos.length === 0 ? ' es-cerrado' : ''}` },
-      el('dt', { text: nombre }),
-      el('dd', { text: tramos.length > 0 ? tramos.join('  ·  ') : 'Cerrado' }));
+      .map((h) => `${h.inicio} – ${h.fin}`)
+      .join('  ·  ');
+    const ultimo = grupos.at(-1);
+    if (ultimo && ultimo.texto === texto) grupos[grupos.length - 1] = { ...ultimo, hasta: nombre };
+    else grupos.push({ desde: nombre, hasta: nombre, texto });
   });
+  const filas = grupos.map(({ desde, hasta, texto }) => (
+    el('div', { class: `horario__fila${texto === '' ? ' es-cerrado' : ''}` },
+      el('dt', { text: desde === hasta ? desde : `${desde} – ${hasta}` }),
+      el('dd', { text: texto || 'Cerrado' }))
+  ));
   $('tabla-horario').replaceChildren(...filas);
 }
 
