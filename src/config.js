@@ -16,7 +16,7 @@ export function buscarServicio(id) {
 }
 
 export const AJUSTES_POR_DEFECTO = Object.freeze({
-  nombre_salon: 'Shiatsu Pamplona',
+  nombre_salon: 'Pausatzen',
   direccion: 'Pamplona · Iruña',
   telefono_salon: '',
   antelacion_horas: '2',

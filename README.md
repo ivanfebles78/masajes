@@ -1,4 +1,4 @@
-# Shiatsu Pamplona · web y citas online
+# Pausatzen · web y citas online
 
 Web de un salón de masajes en Pamplona con reserva de citas online y panel de
 administración. Node 20+ · Express 5 · PostgreSQL · sin paso de compilación.
