@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="/img/portada.webp" type="image/webp" fetchpriority="high">
   <link rel="stylesheet" href="/css/estilos.css">
 </head>
 <body>
@@ -39,13 +40,17 @@
           <a class="enlace-flecha" href="#masajes">Ver los masajes</a>
         </div>
       </div>
-      <div class="portada__arte" aria-hidden="true">
-        <svg class="enso" viewBox="0 0 400 400" role="presentation">
+      <div class="portada__arte">
+        <svg class="enso" viewBox="0 0 400 400" role="presentation" aria-hidden="true">
           <path d="M318 96C262 28 150 22 86 88 22 154 26 262 92 322c66 60 172 56 232-10 44-48 54-118 30-176"
                 fill="none" stroke="currentColor" stroke-width="26" stroke-linecap="round"/>
           <path d="M350 130c4 10 6 16 8 26" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round" opacity=".55"/>
         </svg>
-        <span class="portada__kanji">指圧</span>
+        <img class="portada__foto" src="/img/portada.webp" width="1000" height="1250"
+             alt="Manos aplicando presión de shiatsu en la espalda de una persona tumbada sobre un futón"
+             fetchpriority="high" decoding="async">
+        <img class="portada__detalle" src="/img/detalle.webp" width="640" height="640" alt="" loading="lazy" decoding="async">
+        <span class="portada__kanji" aria-hidden="true">指圧</span>
       </div>
     </section>
 
@@ -54,6 +59,8 @@
       <h2 id="titulo-masajes">Dos maneras de soltar.</h2>
       <div class="masajes__rejilla">
         <article class="ficha ficha--grande">
+          <img class="ficha__foto" src="/img/shiatsu.webp" width="1100" height="739" loading="lazy" decoding="async"
+               alt="Sala de shiatsu con futón sobre tatami y luz natural">
           <span class="ficha__numero">一</span>
           <h3>Shiatsu</h3>
           <p class="ficha__duracion">90 minutos</p>
@@ -63,6 +70,8 @@
           </p>
         </article>
         <article class="ficha ficha--desplazada">
+          <img class="ficha__foto" src="/img/camilla.webp" width="1100" height="739" loading="lazy" decoding="async"
+               alt="Camilla de masaje preparada con sábanas de lino">
           <span class="ficha__numero">二</span>
           <h3>Masaje en camilla</h3>
           <p class="ficha__duracion">60 o 90 minutos</p>
@@ -73,6 +82,15 @@
         </article>
       </div>
     </section>
+
+    <figure class="franja">
+      <img src="/img/ambiente.webp" width="1800" height="1007" loading="lazy" decoding="async"
+           alt="Luz y sombras de hojas sobre un panel de papel, con toallas de lino y piedras sobre un banco de madera">
+      <figcaption>
+        <span class="franja__sello" aria-hidden="true">間</span>
+        <p>Una persona, una sesión, <em>ninguna prisa</em>.</p>
+      </figcaption>
+    </figure>
 
     <section class="reserva" id="reservar" aria-labelledby="titulo-reserva">
       <div class="reserva__cabecera">

@@ -112,13 +112,30 @@ a { color: inherit; }
 .portada h1 em { font-style: normal; color: var(--bermellon); }
 .portada__entrada { max-width: 46ch; margin-top: 1.8rem; font-size: 1.12em; color: var(--tinta-suave); }
 .portada__acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 1.8rem; margin-top: 2.4rem; }
-.portada__arte { position: relative; display: grid; place-items: center; min-height: 18rem; }
+.portada__arte { position: relative; display: grid; justify-items: end; align-items: center; padding: 2rem 0 3.5rem; }
 .enso {
-  width: min(100%, 30rem); color: var(--tinta);
+  position: absolute; left: -6%; top: -4%; z-index: 0;
+  width: min(74%, 26rem); color: var(--tinta);
   animation: girar 1.4s var(--salida) both;
 }
+.portada__foto {
+  position: relative; z-index: 1; display: block;
+  width: min(80%, 27rem); height: auto; aspect-ratio: 4 / 5; object-fit: cover;
+  box-shadow: 16px 16px 0 var(--tinta);
+  animation: aparecer 1s 0.15s var(--salida) both;
+}
+.portada__detalle {
+  position: absolute; left: 0; bottom: 0; z-index: 2;
+  width: min(40%, 13rem); height: auto; aspect-ratio: 1; object-fit: cover;
+  border: 7px solid var(--papel); box-shadow: 0 18px 40px rgba(29, 27, 24, 0.28);
+  transform: rotate(-3deg);
+  transition: transform var(--normal) var(--salida);
+  animation: aparecer 1s 0.45s var(--salida) both;
+}
+.portada__arte:hover .portada__detalle { transform: rotate(0deg) translateY(-6px); }
 .portada__kanji {
-  position: absolute; right: 6%; top: 8%;
+  position: absolute; right: -1.2rem; top: 0; z-index: 3;
+  text-shadow: 3px 3px 0 var(--papel);
   writing-mode: vertical-rl; font-family: var(--serif); font-weight: 800;
   font-size: clamp(3rem, 7vw, 6.5rem); line-height: 1; color: var(--bermellon);
   animation: aparecer 0.9s 0.35s var(--salida) both;
@@ -130,17 +147,42 @@ a { color: inherit; }
 .masajes { padding: 0 var(--margen) var(--seccion); }
 .masajes__rejilla { display: grid; grid-template-columns: 1.15fr 1fr; gap: clamp(1.2rem, 3vw, 3rem); margin-top: 3rem; align-items: start; }
 .ficha {
-  position: relative; padding: clamp(1.6rem, 3vw, 2.8rem);
+  --relleno-ficha: clamp(1.6rem, 3vw, 2.8rem);
+  position: relative; padding: var(--relleno-ficha);
   background: var(--blanco-roto); border: 1px solid var(--linea);
   box-shadow: 10px 10px 0 var(--papel-hondo);
   transition: transform var(--normal) var(--salida), box-shadow var(--normal) var(--salida);
 }
 .ficha:hover { transform: translate(-3px, -3px); box-shadow: 14px 14px 0 var(--musgo); }
 .ficha--desplazada { margin-top: clamp(2rem, 6vw, 5rem); background: var(--tinta); color: var(--papel); border-color: var(--tinta); }
+.ficha__foto {
+  display: block; width: calc(100% + 2 * var(--relleno-ficha)); max-width: none; height: auto;
+  aspect-ratio: 3 / 2; object-fit: cover;
+  margin: calc(-1 * var(--relleno-ficha)) calc(-1 * var(--relleno-ficha)) 1.6rem;
+  filter: saturate(0.92);
+  transition: filter var(--normal), transform var(--normal) var(--salida);
+}
+.ficha { overflow: hidden; }
+.ficha:hover .ficha__foto { filter: saturate(1.05); transform: scale(1.03); }
 .ficha__numero { font-family: var(--serif); font-size: 2.4rem; color: var(--bermellon); line-height: 1; }
 .ficha h3 { font-size: clamp(1.6rem, 1.1rem + 2vw, 2.6rem); margin-top: 1.2rem; }
 .ficha__duracion { font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.8rem; margin: 0.6rem 0 1.2rem; color: var(--musgo); }
 .ficha--desplazada .ficha__duracion { color: #b9c7a9; }
+
+/* ---------- Franja de ambiente ---------- */
+.franja { position: relative; margin: 0; overflow: hidden; }
+.franja img { display: block; width: 100%; height: clamp(18rem, 46vw, 34rem); object-fit: cover; }
+.franja figcaption {
+  position: absolute; left: var(--margen); top: 50%; transform: translateY(-50%);
+  display: flex; align-items: center; gap: 1.4rem; max-width: min(34rem, 80%);
+}
+.franja figcaption p { font-family: var(--serif); font-weight: 600; font-size: clamp(1.5rem, 1rem + 2.4vw, 3rem); line-height: 1.15; }
+.franja figcaption em { font-style: normal; color: var(--bermellon); }
+.franja__sello {
+  display: grid; place-items: center; flex: none; width: 3.6rem; height: 3.6rem;
+  background: var(--bermellon); color: var(--blanco-roto);
+  font-family: var(--serif); font-weight: 800; font-size: 1.9rem; border-radius: 4px; transform: rotate(-5deg);
+}
 
 /* ---------- Reserva ---------- */
 .reserva {
@@ -280,9 +322,12 @@ input[aria-invalid='true'] { border-color: var(--bermellon); }
 /* ---------- Adaptación ---------- */
 @media (max-width: 860px) {
   .portada, .reserva, .horario, .masajes__rejilla { grid-template-columns: 1fr; }
-  .portada__arte { order: -1; min-height: 12rem; }
-  .enso { width: min(62%, 15rem); }
-  .portada__kanji { right: 10%; top: 0; }
+  .portada__arte { order: -1; justify-items: center; padding: 1rem 0 2.5rem; }
+  .portada__foto { width: min(72%, 20rem); box-shadow: 10px 10px 0 var(--tinta); }
+  .portada__detalle { left: 2%; width: 34%; }
+  .enso { left: 0; width: 50%; }
+  .portada__kanji { right: 2%; }
+  .franja figcaption { flex-direction: column; align-items: flex-start; gap: 0.8rem; }
   .reserva__cabecera { position: static; }
   .ficha--desplazada { margin-top: 0; }
   .reserva__panel { box-shadow: 8px 8px 0 var(--bermellon); }
