@@ -19,9 +19,25 @@ function secretoDeSesion(env, produccion) {
   return randomBytes(LONGITUD_MIN_SECRETO).toString('hex');
 }
 
+/** En producción avisa de una vez de todas las variables que faltan. */
+function comprobarEntorno(env) {
+  const faltan = [];
+  if (!env.DATABASE_URL) faltan.push('DATABASE_URL (referencia a la base de datos PostgreSQL)');
+  if (!env.SESSION_SECRET || env.SESSION_SECRET.length < LONGITUD_MIN_SECRETO) {
+    faltan.push(`SESSION_SECRET (texto aleatorio de al menos ${LONGITUD_MIN_SECRETO} caracteres)`);
+  }
+  if (!env.ADMIN_PASSWORD && !env.ADMIN_PASSWORD_HASH) {
+    console.warn('[admin] Sin ADMIN_PASSWORD: solo es válido si el usuario «admin» ya existe en la base de datos.');
+  }
+  if (faltan.length > 0) {
+    throw new Error(`Faltan variables de entorno:\n  - ${faltan.join('\n  - ')}`);
+  }
+}
+
 async function arrancar() {
   const env = process.env;
   const produccion = env.NODE_ENV === 'production';
+  if (produccion) comprobarEntorno(env);
   const secretoSesion = secretoDeSesion(env, produccion);
 
   const db = await conectarBD(env);
