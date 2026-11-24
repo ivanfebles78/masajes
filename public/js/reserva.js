@@ -1,7 +1,7 @@
 // Flujo de reserva: masaje → día → turno → hora → datos.
 // El cliente nunca ve la ocupación de un día entero: solo los huecos del
 // turno que ha pedido.
-import { api, el, DIAS, NOMBRE_TURNO, NOMBRE_CANAL, diaSemana, fechaLarga, fechaISO, mayuscula } from './comun.js';
+import { api, el, DIAS, NOMBRE_TURNO, NOMBRE_CANAL, diaSemana, fechaLarga, fechaISO, mayuscula, pintarNombre } from './comun.js';
 
 const $ = (id) => document.getElementById(id);
 const PASOS_POSTERIORES = {
@@ -304,7 +304,7 @@ function pintarHorario() {
 }
 
 function pintarDatosSalon() {
-  for (const nodo of document.querySelectorAll('[data-salon]')) nodo.textContent = info.nombre;
+  for (const nodo of document.querySelectorAll('[data-salon]')) pintarNombre(nodo, info.nombre);
   document.querySelector('[data-direccion]').textContent = info.direccion;
   const telefono = document.querySelector('[data-telefono]');
   telefono.textContent = info.telefono;

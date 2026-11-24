@@ -1,9 +1,9 @@
 // Panel de administración.
-import { api, el, DIAS, NOMBRE_TURNO, NOMBRE_CANAL, fechaLarga, mayuscula } from '/js/comun.js';
+import { api, el, DIAS, NOMBRE_TURNO, NOMBRE_CANAL, fechaLarga, mayuscula, pintarNombre } from '/js/comun.js';
 
 const $ = (id) => document.getElementById(id);
 const SECCIONES = ['citas', 'horario', 'bloqueos', 'ajustes'];
-const NOMBRE_SERVICIO = { shiatsu: 'Shiatsu', camilla: 'Masaje en camilla' };
+const NOMBRE_SERVICIO = { shiatsu: 'Shiatsu Zen', camilla: 'Masaje en camilla' };
 const MS_AVISO = 4000;
 
 let temporizadorAviso = null;
@@ -191,7 +191,7 @@ async function quitarBloqueo(id) {
 
 /* ---------- Ajustes ---------- */
 function pintarAjustes(ajustes) {
-  $('nombre-salon').textContent = ajustes.nombre_salon;
+  pintarNombre($('nombre-salon'), ajustes.nombre_salon);
   $('aj-nombre').value = ajustes.nombre_salon;
   $('aj-direccion').value = ajustes.direccion;
   $('aj-telefono').value = ajustes.telefono_salon;

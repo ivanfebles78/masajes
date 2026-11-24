@@ -45,6 +45,17 @@ export function el(etiqueta, atributos = {}, ...hijos) {
   return nodo;
 }
 
+/**
+ * Escribe el nombre del salón. Si es «PausatZen» lo compone como logotipo,
+ * con la «t» destacada para que se lea Pausa+Zen.
+ */
+export function pintarNombre(nodo, nombre) {
+  const esLogotipo = nombre.toLowerCase() === 'pausatzen';
+  nodo.classList.toggle('es-logotipo', esLogotipo);
+  if (esLogotipo) nodo.replaceChildren('Pausa', el('span', { class: 'marca__t', text: 't' }), 'Zen');
+  else nodo.textContent = nombre;
+}
+
 export const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 export const NOMBRE_TURNO = { manana: 'Mañana', tarde: 'Tarde' };
 export const NOMBRE_CANAL = { email: 'Correo', whatsapp: 'WhatsApp', sms: 'SMS' };

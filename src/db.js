@@ -6,6 +6,7 @@ import { readFile } from 'node:fs/promises';
 import bcrypt from 'bcryptjs';
 import {
   AJUSTES_POR_DEFECTO,
+  AJUSTES_RENOMBRADOS,
   HORARIO_POR_DEFECTO,
   USUARIO_ADMIN,
 } from './config.js';
@@ -104,6 +105,12 @@ async function sembrar(db, env) {
       'INSERT INTO ajustes (clave, valor) VALUES ($1, $2) ON CONFLICT (clave) DO NOTHING',
       [clave, valor],
     );
+  }
+
+  for (const { clave, antes, ahora } of AJUSTES_RENOMBRADOS) {
+    for (const viejo of antes) {
+      await db.query('UPDATE ajustes SET valor = $1 WHERE clave = $2 AND valor = $3', [ahora, clave, viejo]);
+    }
   }
 }
 

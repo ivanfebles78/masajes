@@ -85,7 +85,7 @@ test('normaliza teléfonos españoles e internacionales', () => {
 });
 
 test('la cita exige nombre y al menos un medio de contacto', () => {
-  const base = { fecha: '2026-11-24', turno: 'manana', servicio: 'shiatsu', duracion: 90, hora: '09:00', nombre: 'Ana' };
+  const base = { fecha: '2026-11-24', turno: 'manana', servicio: 'shiatsu', duracion: 75, hora: '09:00', nombre: 'Ana' };
   assert.throws(() => validarCita(base), ErrorValidacion);
   assert.throws(() => validarCita({ ...base, nombre: '', email: 'a@b.es' }), ErrorValidacion);
   assert.throws(() => validarCita({ ...base, email: 'no-es-correo' }), ErrorValidacion);
@@ -97,9 +97,11 @@ test('la cita exige nombre y al menos un medio de contacto', () => {
   assert.equal(conMovil.email, null);
 });
 
-test('el shiatsu solo admite 90 minutos y la camilla 60 o 90', () => {
+test('el shiatsu solo admite 75 minutos y la camilla 60 o 90', () => {
   const base = { fecha: '2026-11-24', turno: 'manana', hora: '09:00', nombre: 'Ana', email: 'a@b.es' };
   assert.throws(() => validarCita({ ...base, servicio: 'shiatsu', duracion: 60 }), ErrorValidacion);
+  assert.throws(() => validarCita({ ...base, servicio: 'shiatsu', duracion: 90 }), ErrorValidacion);
+  assert.equal(validarCita({ ...base, servicio: 'shiatsu', duracion: 75 }).duracion, 75);
   assert.throws(() => validarCita({ ...base, servicio: 'camilla', duracion: 45 }), ErrorValidacion);
   assert.throws(() => validarCita({ ...base, servicio: 'tailandes', duracion: 90 }), ErrorValidacion);
   assert.equal(validarCita({ ...base, servicio: 'camilla', duracion: '60' }).duracion, 60);

@@ -96,6 +96,10 @@ a { color: inherit; }
   transform: rotate(-4deg);
 }
 .marca__nombre { font-family: var(--serif); font-weight: 800; font-size: 1.15rem; }
+/* Logotipo: geométrica cuya «t» es una cruz limpia, para que se lea Pausa+Zen. */
+.es-logotipo { font-family: 'Jost', 'Futura', 'Century Gothic', var(--sans); font-weight: 500; letter-spacing: 0.01em; }
+.marca__nombre.es-logotipo { font-size: 1.5rem; line-height: 1; }
+.marca__t { color: var(--bermellon); font-weight: 600; }
 .cabecera nav { display: flex; align-items: center; gap: clamp(0.8rem, 2vw, 2rem); }
 .cabecera nav a:not(.boton) { text-decoration: none; font-weight: 500; font-size: 0.95rem; }
 .cabecera nav a:not(.boton):hover { color: var(--bermellon); }

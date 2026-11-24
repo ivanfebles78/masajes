@@ -1,11 +1,11 @@
-# Pausatzen · web y citas online
+# PausatZen · web y citas online
 
-Web de un salón de masajes en Pamplona con reserva de citas online y panel de
+Web de un salón de masajes en Estella-Lizarra con reserva de citas online y panel de
 administración. Node 20+ · Express 5 · PostgreSQL · sin paso de compilación.
 
 ## Qué hace
 
-- **Dos masajes**: shiatsu (90 min) y masaje en camilla (60 o 90 min).
+- **Dos masajes**: Shiatsu Zen (75 min) y masaje en camilla (60 o 90 min).
 - **Reserva en 5 pasos**: masaje → día → turno (mañana/tarde) → hora → datos.
   El cliente nunca ve la ocupación de un día entero: solo los huecos del turno
   que pide. Si no quedan, se le ofrece el otro turno u otro día.

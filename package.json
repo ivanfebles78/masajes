@@ -1,7 +1,7 @@
 {
   "name": "shiatsu-pamplona",
   "version": "1.0.0",
-  "description": "Web de un salón de shiatsu en Pamplona con reserva de citas online y panel de administración.",
+  "description": "Web de un salón de shiatsu y masaje en Estella con reserva de citas online y panel de administración.",
   "type": "module",
   "main": "src/server.js",
   "engines": {

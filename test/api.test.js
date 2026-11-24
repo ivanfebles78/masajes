@@ -4,7 +4,7 @@ import { conectarBD, prepararBD } from '../src/db.js';
 import { crearNotificador } from '../src/notificaciones.js';
 import { crearApp } from '../src/app.js';
 
-// Lunes 23-11-2026 a las 09:00 en Pamplona.
+// Lunes 23-11-2026 a las 09:00, hora peninsular.
 const AHORA = new Date('2026-11-23T08:00:00Z');
 const MARTES = '2026-11-24';
 const CLAVE_PRUEBA = 'clave-de-pruebas-1';
@@ -30,9 +30,9 @@ async function pedir(ruta, { metodo = 'GET', cuerpo, conSesion = false } = {}) {
   return { status: respuesta.status, json: await respuesta.json() };
 }
 
-const huecosDe = async (fecha, turno, servicio = 'shiatsu', duracion = 90) =>
+const huecosDe = async (fecha, turno, servicio = 'camilla', duracion = 90) =>
   (await pedir(`/api/disponibilidad?fecha=${fecha}&turno=${turno}&servicio=${servicio}&duracion=${duracion}`)).json.data;
-const SHIATSU = { servicio: 'shiatsu', duracion: 90 };
+const NOVENTA = { servicio: 'camilla', duracion: 90 };
 
 before(async () => {
   const env = { NODE_ENV: 'test', ADMIN_PASSWORD: CLAVE_PRUEBA };
@@ -70,6 +70,15 @@ test('muestra solo los huecos del turno pedido', async () => {
   assert.deepEqual((await huecosDe(MARTES, 'tarde')).huecos, ['16:30', '18:00']);
 });
 
+test('el Shiatsu Zen dura 75 minutos y encadena sus huecos', async () => {
+  assert.deepEqual((await huecosDe('2026-12-16', 'manana', 'shiatsu', 75)).huecos, ['09:00', '10:15', '11:30']);
+  assert.deepEqual((await huecosDe('2026-12-16', 'tarde', 'shiatsu', 75)).huecos, ['16:30', '17:45']);
+  assert.equal((await pedir('/api/disponibilidad?fecha=2026-12-16&turno=manana&servicio=shiatsu&duracion=90')).status, 400);
+  const info = (await pedir('/api/info')).json.data;
+  assert.deepEqual(info.servicios[0], { id: 'shiatsu', nombre: 'Shiatsu Zen', duraciones: [75] });
+  assert.equal(info.direccion, 'Estella · Lizarra');
+});
+
 test('sábado por la tarde y domingo están cerrados', async () => {
   assert.equal((await huecosDe('2026-11-28', 'manana')).abierto, true);
   assert.equal((await huecosDe('2026-11-28', 'tarde')).abierto, false);
@@ -83,8 +92,8 @@ test('respeta la antelación mínima el mismo día y rechaza fechas pasadas o le
 });
 
 test('valida los parámetros de disponibilidad', async () => {
-  assert.equal((await pedir('/api/disponibilidad?fecha=ayer&turno=manana&servicio=shiatsu&duracion=90')).status, 400);
-  assert.equal((await pedir(`/api/disponibilidad?fecha=${MARTES}&turno=noche&servicio=shiatsu&duracion=90`)).status, 400);
+  assert.equal((await pedir('/api/disponibilidad?fecha=ayer&turno=manana&servicio=camilla&duracion=90')).status, 400);
+  assert.equal((await pedir(`/api/disponibilidad?fecha=${MARTES}&turno=noche&servicio=camilla&duracion=90`)).status, 400);
   assert.equal((await pedir(`/api/disponibilidad?fecha=${MARTES}&turno=manana&servicio=shiatsu&duracion=60`)).status, 400);
   assert.equal((await pedir(`/api/disponibilidad?fecha=${MARTES}&turno=manana`)).status, 400);
 });
@@ -93,7 +102,7 @@ test('reserva una cita, envía el correo y simula el WhatsApp', async () => {
   const r = await pedir('/api/citas', {
     metodo: 'POST',
     cuerpo: {
-      ...SHIATSU, fecha: MARTES, turno: 'manana', hora: '10:30', nombre: 'Ana <b>López</b>',
+      ...NOVENTA, fecha: MARTES, turno: 'manana', hora: '10:30', nombre: 'Ana <b>López</b>',
       telefono: '612 345 678', email: 'ana@ejemplo.test', canal: 'whatsapp',
     },
   });
@@ -107,19 +116,19 @@ test('reserva una cita, envía el correo y simula el WhatsApp', async () => {
   assert.equal(correosEnviados[0].auth, 'Bearer re_prueba');
   assert.deepEqual(correosEnviados[0].cuerpo.to, ['ana@ejemplo.test']);
   assert.ok(correosEnviados[0].cuerpo.html.includes('Ana &lt;b&gt;López&lt;/b&gt;'));
-  assert.ok(correosEnviados[0].cuerpo.text.includes('Shiatsu · martes, 24 de noviembre a las 10:30 (90 min)'));
+  assert.ok(correosEnviados[0].cuerpo.text.includes('Masaje en camilla · martes, 24 de noviembre a las 10:30 (90 min)'));
   assert.deepEqual((await huecosDe(MARTES, 'manana')).huecos, ['09:00', '12:00']);
 });
 
 test('no permite reservar dos veces el mismo hueco ni un hueco inexistente', async () => {
-  const cuerpo = { ...SHIATSU, fecha: MARTES, turno: 'manana', hora: '10:30', nombre: 'Luis', email: 'luis@ejemplo.test' };
+  const cuerpo = { ...NOVENTA, fecha: MARTES, turno: 'manana', hora: '10:30', nombre: 'Luis', email: 'luis@ejemplo.test' };
   assert.equal((await pedir('/api/citas', { metodo: 'POST', cuerpo })).status, 409);
   assert.equal((await pedir('/api/citas', { metodo: 'POST', cuerpo: { ...cuerpo, hora: '11:00' } })).status, 409);
   assert.equal((await pedir('/api/citas', { metodo: 'POST', cuerpo: { ...cuerpo, turno: 'tarde', hora: '09:00' } })).status, 409);
 });
 
 test('dos reservas simultáneas del mismo hueco: solo entra una', async () => {
-  const cuerpo = { ...SHIATSU, fecha: MARTES, turno: 'tarde', hora: '18:00', nombre: 'Carrera', email: 'c@ejemplo.test' };
+  const cuerpo = { ...NOVENTA, fecha: MARTES, turno: 'tarde', hora: '18:00', nombre: 'Carrera', email: 'c@ejemplo.test' };
   const [a, b] = await Promise.all([
     pedir('/api/citas', { metodo: 'POST', cuerpo }),
     pedir('/api/citas', { metodo: 'POST', cuerpo }),
@@ -136,12 +145,12 @@ test('un masaje en camilla de 60 minutos recoloca los huecos siguientes', async 
   });
   assert.equal(r.status, 201);
   assert.deepEqual(r.json.data.avisos, [{ canal: 'sms', estado: 'simulado' }]);
-  assert.deepEqual((await huecosDe(MIERCOLES, 'manana', 'shiatsu', 90)).huecos, ['10:00', '11:30']);
+  assert.deepEqual((await huecosDe(MIERCOLES, 'manana', 'shiatsu', 75)).huecos, ['10:00', '11:15']);
   assert.deepEqual((await huecosDe(MIERCOLES, 'manana', 'camilla', 60)).huecos, ['10:00', '11:00', '12:00']);
-  // Las 10:30 ya no es un inicio válido para shiatsu ese día.
+  // Las 09:30 pisa la cita de las 09:00: no es un inicio válido.
   const pisada = await pedir('/api/citas', {
     metodo: 'POST',
-    cuerpo: { ...SHIATSU, fecha: MIERCOLES, turno: 'manana', hora: '09:30', nombre: 'Pisa', email: 'p@ejemplo.test' },
+    cuerpo: { ...NOVENTA, fecha: MIERCOLES, turno: 'manana', hora: '09:30', nombre: 'Pisa', email: 'p@ejemplo.test' },
   });
   assert.equal(pisada.status, 409);
 });
@@ -150,7 +159,7 @@ test('dos reservas simultáneas de distinta duración que se solapan: solo entra
   const JUEVES = '2026-12-03';
   const comun = { fecha: JUEVES, turno: 'tarde', nombre: 'Solape', email: 's@ejemplo.test' };
   const [a, b] = await Promise.all([
-    pedir('/api/citas', { metodo: 'POST', cuerpo: { ...comun, ...SHIATSU, hora: '16:30' } }),
+    pedir('/api/citas', { metodo: 'POST', cuerpo: { ...comun, ...NOVENTA, hora: '16:30' } }),
     pedir('/api/citas', { metodo: 'POST', cuerpo: { ...comun, servicio: 'camilla', duracion: 60, hora: '17:30' } }),
   ]);
   assert.deepEqual([a.status, b.status].sort(), [201, 409]);
@@ -162,20 +171,20 @@ test('limita las citas pendientes por contacto y rechaza correos con parámetros
   for (const fecha of dias) {
     const r = await pedir('/api/citas', {
       metodo: 'POST',
-      cuerpo: { ...SHIATSU, fecha, turno: 'manana', hora: '09:00', nombre: 'Repite', email: 'repite@ejemplo.test' },
+      cuerpo: { ...NOVENTA, fecha, turno: 'manana', hora: '09:00', nombre: 'Repite', email: 'repite@ejemplo.test' },
     });
     estados.push(r.status);
   }
   assert.deepEqual(estados, [201, 201, 201, 429]);
   const raro = await pedir('/api/citas', {
     metodo: 'POST',
-    cuerpo: { ...SHIATSU, fecha: '2026-12-15', turno: 'manana', hora: '09:00', nombre: 'Raro', email: 'a@b.co?bcc=x.com' },
+    cuerpo: { ...NOVENTA, fecha: '2026-12-15', turno: 'manana', hora: '09:00', nombre: 'Raro', email: 'a@b.co?bcc=x.com' },
   });
   assert.equal(raro.status, 400);
 });
 
 test('rechaza datos incompletos y el campo trampa', async () => {
-  const cuerpo = { ...SHIATSU, fecha: MARTES, turno: 'manana', hora: '09:00', nombre: 'Eva' };
+  const cuerpo = { ...NOVENTA, fecha: MARTES, turno: 'manana', hora: '09:00', nombre: 'Eva' };
   const sinContacto = await pedir('/api/citas', { metodo: 'POST', cuerpo });
   assert.equal(sinContacto.status, 400);
   assert.equal(sinContacto.json.campo, 'telefono');
@@ -197,7 +206,7 @@ test('el administrador ve las citas y puede cancelar una, liberando el hueco', a
   const lista = await pedir('/api/admin/citas', { conSesion: true });
   const ana = lista.json.data.citas.find((c) => c.hora === '10:30');
   assert.equal(ana.telefono, '+34612345678');
-  assert.equal(ana.servicio, 'shiatsu');
+  assert.equal(ana.servicio, 'camilla');
   assert.equal(ana.duracion_min, 90);
   assert.deepEqual(ana.avisos.map((a) => a.canal), ['email', 'whatsapp']);
   const cancelar = await pedir(`/api/admin/citas/${ana.id}/cancelar`, { metodo: 'POST', conSesion: true });
