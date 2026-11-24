@@ -1,11 +1,12 @@
 // Reglas de negocio: disponibilidad y creación de citas.
-import { AJUSTES_POR_DEFECTO, LIMITES } from './config.js';
+import { AJUSTES_POR_DEFECTO, LIMITES, TURNOS } from './config.js';
 import {
   aMinutos,
   ahoraEnSalon,
   diaSemanaISO,
   diasEntre,
   huecosLibres,
+  jornadaContinua,
 } from './slots.js';
 
 const COD_DUPLICADO = '23505';
@@ -49,17 +50,16 @@ export async function leerAjustes(db) {
 
 export async function leerHorario(db) {
   const { rows } = await db.query(
-    'SELECT dia_semana, turno, inicio, fin, activo FROM horario ORDER BY dia_semana, turno',
+    'SELECT dia_semana, turno, inicio, fin, activo FROM horario ORDER BY dia_semana, inicio, turno',
   );
   return rows;
 }
 
-async function estaBloqueado(db, fecha, turno) {
-  const { rows } = await db.query(
-    'SELECT 1 FROM dias_bloqueados WHERE fecha = $1 AND (turno IS NULL OR turno = $2) LIMIT 1',
-    [fecha, turno],
-  );
-  return rows.length > 0;
+/** Turnos que el administrador ha cerrado en una fecha concreta. */
+async function turnosBloqueados(db, fecha) {
+  const { rows } = await db.query('SELECT turno FROM dias_bloqueados WHERE fecha = $1', [fecha]);
+  if (rows.some((r) => r.turno === null)) return new Set(TURNOS);
+  return new Set(rows.map((r) => r.turno));
 }
 
 async function citasDelDia(db, fecha) {
@@ -86,21 +86,28 @@ export async function disponibilidad(db, { fecha, turno, duracion }, instante = 
   }
 
   const { rows } = await db.query(
-    'SELECT inicio, fin, activo FROM horario WHERE dia_semana = $1 AND turno = $2',
-    [diaSemanaISO(fecha), turno],
+    'SELECT turno, inicio, fin, activo FROM horario WHERE dia_semana = $1',
+    [diaSemanaISO(fecha)],
   );
-  const tramo = rows[0];
-  if (!tramo || !tramo.activo) return { abierto: false, motivo: 'cerrado', huecos: [] };
-  if (await estaBloqueado(db, fecha, turno)) return { abierto: false, motivo: 'cerrado', huecos: [] };
+  const bloqueados = await turnosBloqueados(db, fecha);
+  const abiertos = rows
+    .filter((r) => r.activo && !bloqueados.has(r.turno))
+    .map((r) => ({ turno: r.turno, inicio: aMinutos(r.inicio), fin: aMinutos(r.fin) }));
+  const propio = abiertos.find((t) => t.turno === turno);
+  if (!propio) return { abierto: false, motivo: 'cerrado', huecos: [] };
 
+  // Los huecos se calculan sobre toda la jornada continua (p. ej. 9:00–19:00)
+  // y se muestran solo los que empiezan dentro del turno pedido.
+  const jornada = jornadaContinua(abiertos, turno);
   const huecos = huecosLibres({
-    inicio: tramo.inicio,
-    fin: tramo.fin,
+    inicio: jornada.inicio,
+    fin: jornada.fin,
     duracion,
     ocupadas: await citasDelDia(db, fecha),
     fecha,
     ahora,
     antelacionMin: ajustes.antelacion_horas * 60,
+    ventana: propio,
   });
   return { abierto: true, motivo: null, huecos };
 }

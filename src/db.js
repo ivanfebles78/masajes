@@ -83,6 +83,19 @@ async function hashAdminInicial(env) {
   return bcrypt.hash(temporal, COSTE_BCRYPT);
 }
 
+// Se ejecuta una sola vez: el horario sembrado por la primera versión cerraba
+// a las 19:30; con la jornada continua la tarde de lunes a viernes acaba a las 19:00.
+async function migrarHorarioContinuo(db) {
+  const marca = 'migracion_horario_continuo';
+  const hecha = await db.query('SELECT 1 FROM ajustes WHERE clave = $1', [marca]);
+  if (hecha.rows.length > 0) return;
+  await db.query(
+    `UPDATE horario SET fin = '19:00'
+     WHERE turno = 'tarde' AND inicio = '16:30' AND fin = '19:30'`,
+  );
+  await db.query('INSERT INTO ajustes (clave, valor) VALUES ($1, $2)', [marca, '1']);
+}
+
 async function sembrar(db, env) {
   const admins = await db.query('SELECT 1 FROM administradores LIMIT 1');
   if (admins.rows.length === 0) {
@@ -99,6 +112,8 @@ async function sembrar(db, env) {
       [h.dia_semana, h.turno, h.inicio, h.fin, h.activo],
     );
   }
+
+  await migrarHorarioContinuo(db);
 
   for (const [clave, valor] of Object.entries(AJUSTES_POR_DEFECTO)) {
     await db.query(

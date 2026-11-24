@@ -83,16 +83,47 @@ export function tramosLibres(inicio, fin, ocupadas) {
 }
 
 /**
- * Horas de inicio que se pueden ofrecer para un masaje de `duracion` minutos.
- * Los huecos se encadenan desde el principio de cada tramo libre, de modo que
- * las citas quedan pegadas unas a otras y no se desperdicia tiempo entre ellas.
+ * Jornada continua a la que pertenece un turno: une los turnos abiertos que
+ * van seguidos (el fin de uno coincide con el inicio del siguiente o lo pisa).
+ * @param {{turno: string, inicio: number, fin: number}[]} abiertos
+ * @param {string} turno
+ * @returns {{inicio: number, fin: number} | null}
  */
-export function huecosLibres({ inicio, fin, duracion, ocupadas, fecha, ahora, antelacionMin }) {
+export function jornadaContinua(abiertos, turno) {
+  const ordenados = [...abiertos].sort((x, y) => x.inicio - y.inicio);
+  const bloques = [];
+  for (const tramo of ordenados) {
+    const ultimo = bloques.at(-1);
+    if (ultimo && tramo.inicio <= ultimo.fin) {
+      bloques[bloques.length - 1] = {
+        inicio: ultimo.inicio,
+        fin: Math.max(ultimo.fin, tramo.fin),
+        turnos: [...ultimo.turnos, tramo.turno],
+      };
+    } else {
+      bloques.push({ inicio: tramo.inicio, fin: tramo.fin, turnos: [tramo.turno] });
+    }
+  }
+  const bloque = bloques.find((b) => b.turnos.includes(turno));
+  return bloque ? { inicio: bloque.inicio, fin: bloque.fin } : null;
+}
+
+const enMinutos = (valor) => (typeof valor === 'string' ? aMinutos(valor) : valor);
+
+/**
+ * Horas de inicio que se pueden ofrecer para un masaje de `duracion` minutos.
+ * Los huecos se encadenan desde el principio de cada tramo libre de la jornada
+ * (`inicio`–`fin`), de modo que las citas quedan pegadas y no se desperdicia
+ * tiempo entre ellas. Con `ventana` solo se devuelven los que EMPIEZAN dentro
+ * de ese turno, aunque el masaje termine ya en el turno siguiente.
+ */
+export function huecosLibres({ inicio, fin, duracion, ocupadas, fecha, ahora, antelacionMin, ventana = null }) {
   const minutosHastaFecha = diasEntre(ahora.fecha, fecha) * LIMITES.MINUTOS_DIA - ahora.minutos;
   const huecos = [];
-  for (const tramo of tramosLibres(aMinutos(inicio), aMinutos(fin), ocupadas)) {
+  for (const tramo of tramosLibres(enMinutos(inicio), enMinutos(fin), ocupadas)) {
     for (let t = tramo.inicio; t + duracion <= tramo.fin; t += duracion) {
-      if (minutosHastaFecha + t >= antelacionMin) huecos.push(aHora(t));
+      const enVentana = !ventana || (t >= ventana.inicio && t < ventana.fin);
+      if (enVentana && minutosHastaFecha + t >= antelacionMin) huecos.push(aHora(t));
     }
   }
   return huecos;

@@ -67,11 +67,30 @@ test('la contraseña del administrador se guarda hasheada', async () => {
 
 test('muestra solo los huecos del turno pedido', async () => {
   assert.deepEqual((await huecosDe(MARTES, 'manana')).huecos, ['09:00', '10:30', '12:00']);
-  assert.deepEqual((await huecosDe(MARTES, 'tarde')).huecos, ['16:30', '18:00']);
+  assert.deepEqual((await huecosDe(MARTES, 'mediodia')).huecos, ['13:30', '15:00']);
+  // A las 18:00 ya no cabe un masaje de 90 minutos: se cierra a las 19:00.
+  assert.deepEqual((await huecosDe(MARTES, 'tarde')).huecos, ['16:30']);
+});
+
+test('de lunes a viernes la jornada es continua de 9:00 a 19:00 en tres turnos', async () => {
+  const { horario, turnos } = (await pedir('/api/info')).json.data;
+  assert.deepEqual(turnos, ['manana', 'mediodia', 'tarde']);
+  const lunes = horario.filter((h) => h.dia === 1).map((h) => [h.turno, h.inicio, h.fin, h.activo]);
+  assert.deepEqual(lunes, [
+    ['manana', '09:00', '13:30', true],
+    ['mediodia', '13:30', '16:30', true],
+    ['tarde', '16:30', '19:00', true],
+  ]);
+  // Un masaje puede empezar en un turno y terminar en el siguiente.
+  assert.deepEqual((await huecosDe('2026-12-17', 'manana', 'camilla', 60)).huecos,
+    ['09:00', '10:00', '11:00', '12:00', '13:00']);
+  assert.deepEqual((await huecosDe('2026-12-17', 'mediodia', 'camilla', 60)).huecos, ['14:00', '15:00', '16:00']);
+  assert.deepEqual((await huecosDe('2026-12-17', 'tarde', 'camilla', 60)).huecos, ['17:00', '18:00']);
 });
 
 test('el Shiatsu Zen dura 75 minutos y encadena sus huecos', async () => {
-  assert.deepEqual((await huecosDe('2026-12-16', 'manana', 'shiatsu', 75)).huecos, ['09:00', '10:15', '11:30']);
+  assert.deepEqual((await huecosDe('2026-12-16', 'manana', 'shiatsu', 75)).huecos, ['09:00', '10:15', '11:30', '12:45']);
+  assert.deepEqual((await huecosDe('2026-12-16', 'mediodia', 'shiatsu', 75)).huecos, ['14:00', '15:15']);
   assert.deepEqual((await huecosDe('2026-12-16', 'tarde', 'shiatsu', 75)).huecos, ['16:30', '17:45']);
   assert.equal((await pedir('/api/disponibilidad?fecha=2026-12-16&turno=manana&servicio=shiatsu&duracion=90')).status, 400);
   const info = (await pedir('/api/info')).json.data;
@@ -80,7 +99,8 @@ test('el Shiatsu Zen dura 75 minutos y encadena sus huecos', async () => {
 });
 
 test('sábado por la tarde y domingo están cerrados', async () => {
-  assert.equal((await huecosDe('2026-11-28', 'manana')).abierto, true);
+  assert.deepEqual((await huecosDe('2026-11-28', 'manana')).huecos, ['09:00', '10:30', '12:00']);
+  assert.equal((await huecosDe('2026-11-28', 'mediodia')).abierto, false);
   assert.equal((await huecosDe('2026-11-28', 'tarde')).abierto, false);
   assert.equal((await huecosDe('2026-11-29', 'manana')).abierto, false);
 });
@@ -128,7 +148,7 @@ test('no permite reservar dos veces el mismo hueco ni un hueco inexistente', asy
 });
 
 test('dos reservas simultáneas del mismo hueco: solo entra una', async () => {
-  const cuerpo = { ...NOVENTA, fecha: MARTES, turno: 'tarde', hora: '18:00', nombre: 'Carrera', email: 'c@ejemplo.test' };
+  const cuerpo = { ...NOVENTA, fecha: MARTES, turno: 'tarde', hora: '16:30', nombre: 'Carrera', email: 'c@ejemplo.test' };
   const [a, b] = await Promise.all([
     pedir('/api/citas', { metodo: 'POST', cuerpo }),
     pedir('/api/citas', { metodo: 'POST', cuerpo }),
@@ -138,15 +158,15 @@ test('dos reservas simultáneas del mismo hueco: solo entra una', async () => {
 
 test('un masaje en camilla de 60 minutos recoloca los huecos siguientes', async () => {
   const MIERCOLES = '2026-12-02';
-  assert.deepEqual((await huecosDe(MIERCOLES, 'manana', 'camilla', 60)).huecos, ['09:00', '10:00', '11:00', '12:00']);
+  assert.deepEqual((await huecosDe(MIERCOLES, 'manana', 'camilla', 60)).huecos, ['09:00', '10:00', '11:00', '12:00', '13:00']);
   const r = await pedir('/api/citas', {
     metodo: 'POST',
     cuerpo: { fecha: MIERCOLES, turno: 'manana', servicio: 'camilla', duracion: 60, hora: '09:00', nombre: 'Marta', telefono: '612345678', canal: 'sms' },
   });
   assert.equal(r.status, 201);
   assert.deepEqual(r.json.data.avisos, [{ canal: 'sms', estado: 'simulado' }]);
-  assert.deepEqual((await huecosDe(MIERCOLES, 'manana', 'shiatsu', 75)).huecos, ['10:00', '11:15']);
-  assert.deepEqual((await huecosDe(MIERCOLES, 'manana', 'camilla', 60)).huecos, ['10:00', '11:00', '12:00']);
+  assert.deepEqual((await huecosDe(MIERCOLES, 'manana', 'shiatsu', 75)).huecos, ['10:00', '11:15', '12:30']);
+  assert.deepEqual((await huecosDe(MIERCOLES, 'manana', 'camilla', 60)).huecos, ['10:00', '11:00', '12:00', '13:00']);
   // Las 09:30 pisa la cita de las 09:00: no es un inicio válido.
   const pisada = await pedir('/api/citas', {
     metodo: 'POST',
@@ -160,7 +180,7 @@ test('dos reservas simultáneas de distinta duración que se solapan: solo entra
   const comun = { fecha: JUEVES, turno: 'tarde', nombre: 'Solape', email: 's@ejemplo.test' };
   const [a, b] = await Promise.all([
     pedir('/api/citas', { metodo: 'POST', cuerpo: { ...comun, ...NOVENTA, hora: '16:30' } }),
-    pedir('/api/citas', { metodo: 'POST', cuerpo: { ...comun, servicio: 'camilla', duracion: 60, hora: '17:30' } }),
+    pedir('/api/citas', { metodo: 'POST', cuerpo: { ...comun, servicio: 'camilla', duracion: 60, hora: '17:00' } }),
   ]);
   assert.deepEqual([a.status, b.status].sort(), [201, 409]);
 });
@@ -217,10 +237,12 @@ test('el administrador ve las citas y puede cancelar una, liberando el hueco', a
 test('el administrador cambia el horario y los huecos se recalculan', async () => {
   const { json } = await pedir('/api/admin/horario', { conSesion: true });
   const horario = json.data.horario.map((h) =>
-    h.dia_semana === 3 && h.turno === 'tarde' ? { ...h, inicio: '15:00', fin: '19:30' } : h);
+    h.dia_semana === 3 && h.turno === 'tarde' ? { ...h, fin: '19:30' } : h);
+  assert.equal(horario.length, 21);
+  assert.deepEqual((await huecosDe('2026-11-25', 'tarde')).huecos, ['16:30']);
   const r = await pedir('/api/admin/horario', { metodo: 'PUT', cuerpo: { horario }, conSesion: true });
   assert.equal(r.status, 200);
-  assert.deepEqual((await huecosDe('2026-11-25', 'tarde')).huecos, ['15:00', '16:30', '18:00']);
+  assert.deepEqual((await huecosDe('2026-11-25', 'tarde')).huecos, ['16:30', '18:00']);
   const malo = horario.map((h) => (h.dia_semana === 1 ? { ...h, inicio: '14:00', fin: '09:00' } : h));
   assert.equal((await pedir('/api/admin/horario', { metodo: 'PUT', cuerpo: { horario: malo }, conSesion: true })).status, 400);
 });
@@ -234,6 +256,18 @@ test('un día bloqueado deja de ofrecer huecos', async () => {
   const { json } = await pedir('/api/admin/bloqueos', { conSesion: true });
   await pedir(`/api/admin/bloqueos/${json.data.bloqueos[0].id}`, { metodo: 'DELETE', conSesion: true });
   assert.equal((await huecosDe('2026-11-26', 'manana')).abierto, true);
+});
+
+test('cerrar solo el mediodía parte la jornada en dos', async () => {
+  const VIERNES = '2026-11-27';
+  const crear = await pedir('/api/admin/bloqueos', {
+    metodo: 'POST', cuerpo: { fecha: VIERNES, turno: 'mediodia', motivo: 'Comida' }, conSesion: true,
+  });
+  assert.equal(crear.status, 201);
+  assert.equal((await huecosDe(VIERNES, 'mediodia')).abierto, false);
+  // Por la mañana ya no se puede empezar a las 13:00: acabaría dentro del mediodía cerrado.
+  assert.deepEqual((await huecosDe(VIERNES, 'manana', 'camilla', 60)).huecos, ['09:00', '10:00', '11:00', '12:00']);
+  assert.deepEqual((await huecosDe(VIERNES, 'tarde', 'camilla', 60)).huecos, ['16:30', '17:30']);
 });
 
 test('los ajustes se validan y se reflejan en la web', async () => {

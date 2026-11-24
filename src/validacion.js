@@ -82,9 +82,11 @@ export function validarCita(cuerpo) {
   return { fecha, turno, servicio, duracion, hora, nombre, telefono, email: email || null, canal };
 }
 
+const MAX_FILAS_HORARIO = 7 * TURNOS.length;
+
 export function validarHorario(cuerpo) {
   const filas = cuerpo?.horario;
-  if (!Array.isArray(filas) || filas.length === 0 || filas.length > 14) {
+  if (!Array.isArray(filas) || filas.length === 0 || filas.length > MAX_FILAS_HORARIO) {
     throw new ErrorValidacion('El horario enviado no es válido.');
   }
   const vistos = new Set();

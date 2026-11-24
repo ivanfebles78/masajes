@@ -57,7 +57,8 @@ export function pintarNombre(nodo, nombre) {
 }
 
 export const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-export const NOMBRE_TURNO = { manana: 'Mañana', tarde: 'Tarde' };
+export const NOMBRE_TURNO = { manana: 'Mañana', mediodia: 'Mediodía', tarde: 'Tarde' };
+export const EN_TURNO = { manana: 'por la mañana', mediodia: 'al mediodía', tarde: 'por la tarde' };
 export const NOMBRE_CANAL = { email: 'Correo', whatsapp: 'WhatsApp', sms: 'SMS' };
 
 function aUTC(fecha) {

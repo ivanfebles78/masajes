@@ -1,7 +1,7 @@
 // Constantes y valores por defecto de la aplicación.
 
 export const ZONA_HORARIA = 'Europe/Madrid';
-export const TURNOS = ['manana', 'tarde'];
+export const TURNOS = Object.freeze(['manana', 'mediodia', 'tarde']);
 export const CANALES = ['whatsapp', 'sms'];
 export const USUARIO_ADMIN = 'admin';
 
@@ -23,20 +23,6 @@ export const AJUSTES_POR_DEFECTO = Object.freeze({
   max_dias: '60',
 });
 
-const LABORABLE = [
-  { turno: 'manana', inicio: '09:00', fin: '13:30', activo: true },
-  { turno: 'tarde', inicio: '16:30', fin: '19:30', activo: true },
-];
-const SABADO = [
-  { turno: 'manana', inicio: '09:00', fin: '13:30', activo: true },
-  { turno: 'tarde', inicio: '16:30', fin: '19:30', activo: false },
-];
-const DOMINGO = [
-  { turno: 'manana', inicio: '09:00', fin: '13:30', activo: false },
-  { turno: 'tarde', inicio: '16:30', fin: '19:30', activo: false },
-];
-
-// dia_semana: 1 = lunes … 7 = domingo (ISO).
 // Valores sembrados por versiones anteriores que se actualizan solos al arrancar
 // (solo si el administrador no los ha cambiado ya por otros).
 export const AJUSTES_RENOMBRADOS = Object.freeze([
@@ -44,11 +30,27 @@ export const AJUSTES_RENOMBRADOS = Object.freeze([
   { clave: 'direccion', antes: ['Pamplona · Iruña'], ahora: 'Estella · Lizarra' },
 ]);
 
+const TRAMOS = Object.freeze({
+  manana: { inicio: '09:00', fin: '13:30' },
+  mediodia: { inicio: '13:30', fin: '16:30' },
+  tarde: { inicio: '16:30', fin: '19:00' },
+});
+
+// Turnos abiertos por defecto: de lunes a viernes jornada continua de 9:00 a
+// 19:00; sábados solo por la mañana; domingos cerrado.
+function turnosAbiertos(dia) {
+  if (dia <= 5) return TURNOS;
+  return dia === 6 ? ['manana'] : [];
+}
+
+// dia_semana: 1 = lunes … 7 = domingo (ISO).
 export const HORARIO_POR_DEFECTO = Object.freeze(
-  [1, 2, 3, 4, 5, 6, 7].flatMap((dia) => {
-    const plantilla = dia <= 5 ? LABORABLE : dia === 6 ? SABADO : DOMINGO;
-    return plantilla.map((t) => ({ dia_semana: dia, ...t }));
-  }),
+  [1, 2, 3, 4, 5, 6, 7].flatMap((dia) => TURNOS.map((turno) => ({
+    dia_semana: dia,
+    turno,
+    ...TRAMOS[turno],
+    activo: turnosAbiertos(dia).includes(turno),
+  }))),
 );
 
 export const LIMITES = Object.freeze({

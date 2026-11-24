@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS administradores (
 
 CREATE TABLE IF NOT EXISTS horario (
   dia_semana  SMALLINT NOT NULL CHECK (dia_semana BETWEEN 1 AND 7),
-  turno       TEXT NOT NULL CHECK (turno IN ('manana', 'tarde')),
+  turno       TEXT NOT NULL CHECK (turno IN ('manana', 'mediodia', 'tarde')),
   inicio      TEXT NOT NULL,
   fin         TEXT NOT NULL,
   activo      BOOLEAN NOT NULL DEFAULT TRUE,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS horario (
 CREATE TABLE IF NOT EXISTS dias_bloqueados (
   id      SERIAL PRIMARY KEY,
   fecha   DATE NOT NULL,
-  turno   TEXT CHECK (turno IN ('manana', 'tarde')),
+  turno   TEXT CHECK (turno IN ('manana', 'mediodia', 'tarde')),
   motivo  TEXT NOT NULL DEFAULT ''
 );
 CREATE INDEX IF NOT EXISTS dias_bloqueados_fecha ON dias_bloqueados (fecha);
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS citas (
   id         SERIAL PRIMARY KEY,
   fecha      DATE NOT NULL,
   hora       TEXT NOT NULL,
-  turno      TEXT NOT NULL CHECK (turno IN ('manana', 'tarde')),
+  turno      TEXT NOT NULL CHECK (turno IN ('manana', 'mediodia', 'tarde')),
   servicio   TEXT NOT NULL,
   duracion_min INTEGER NOT NULL CHECK (duracion_min BETWEEN 15 AND 240),
   nombre     TEXT NOT NULL,
@@ -59,3 +59,15 @@ CREATE TABLE IF NOT EXISTS notificaciones (
   creada_en  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS notificaciones_cita ON notificaciones (cita_id);
+
+-- Bases de datos creadas antes de existir el turno de mediodía: se rehacen las
+-- restricciones para admitirlo (es idempotente).
+ALTER TABLE horario DROP CONSTRAINT IF EXISTS horario_turno_check;
+ALTER TABLE horario ADD CONSTRAINT horario_turno_check
+  CHECK (turno IN ('manana', 'mediodia', 'tarde'));
+ALTER TABLE dias_bloqueados DROP CONSTRAINT IF EXISTS dias_bloqueados_turno_check;
+ALTER TABLE dias_bloqueados ADD CONSTRAINT dias_bloqueados_turno_check
+  CHECK (turno IN ('manana', 'mediodia', 'tarde'));
+ALTER TABLE citas DROP CONSTRAINT IF EXISTS citas_turno_check;
+ALTER TABLE citas ADD CONSTRAINT citas_turno_check
+  CHECK (turno IN ('manana', 'mediodia', 'tarde'));

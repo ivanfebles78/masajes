@@ -62,7 +62,7 @@
       <section id="seccion-horario" role="tabpanel" hidden>
         <div class="titulo-seccion">
           <h1>Horario semanal</h1>
-          <p class="nota">Los huecos se calculan dentro de cada turno según la duración del masaje.</p>
+          <p class="nota">Define el rango de cada turno. Los turnos seguidos forman una jornada continua; el cliente elige turno y ve solo los huecos que empiezan en él.</p>
         </div>
         <form id="form-horario">
           <div class="tabla-horario" id="tabla-horario-admin"></div>
@@ -81,6 +81,7 @@
             <select name="turno">
               <option value="todo">Todo el día</option>
               <option value="manana">Solo mañana</option>
+              <option value="mediodia">Solo mediodía</option>
               <option value="tarde">Solo tarde</option>
             </select>
           </label>

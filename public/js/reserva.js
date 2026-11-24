@@ -1,7 +1,7 @@
 // Flujo de reserva: masaje → día → turno → hora → datos.
 // El cliente nunca ve la ocupación de un día entero: solo los huecos del
 // turno que ha pedido.
-import { api, el, DIAS, NOMBRE_TURNO, NOMBRE_CANAL, diaSemana, fechaLarga, fechaISO, mayuscula, pintarNombre } from './comun.js';
+import { api, el, DIAS, NOMBRE_TURNO, EN_TURNO, NOMBRE_CANAL, diaSemana, fechaLarga, fechaISO, mayuscula, pintarNombre } from './comun.js';
 
 const $ = (id) => document.getElementById(id);
 const PASOS_POSTERIORES = {
@@ -47,7 +47,7 @@ function turnoAbierto(fecha, turno) {
 
 function diaAbierto(fecha) {
   return fecha >= info.hoy && fecha <= info.ultimoDia
-    && (turnoAbierto(fecha, 'manana') || turnoAbierto(fecha, 'tarde'));
+    && info.turnos.some((turno) => turnoAbierto(fecha, turno));
 }
 
 /* ---------- Paso 1: masaje ---------- */
@@ -131,15 +131,27 @@ function elegirDia(fecha) {
 }
 
 /* ---------- Paso 3: turno ---------- */
+function tramoDe(fecha, turno) {
+  return info.horario.find((h) => h.dia === diaSemana(fecha) && h.turno === turno && h.activo) ?? null;
+}
+
+/** «hasta las 13:30» para el primer turno abierto del día; «13:30 – 16:30» para el resto. */
+function rangoDeTurno(fecha, turno) {
+  const tramo = tramoDe(fecha, turno);
+  if (!tramo) return 'Cerrado ese día';
+  const esPrimero = info.turnos.find((t) => tramoDe(fecha, t)) === turno;
+  return esPrimero ? `hasta las ${tramo.fin}` : `${tramo.inicio} – ${tramo.fin}`;
+}
+
 function pintarTurnos() {
-  const nodos = ['manana', 'tarde'].map((turno) => {
+  const nodos = info.turnos.map((turno) => {
     const abierto = turnoAbierto(estado.fecha, turno);
     return el('button', {
       type: 'button', class: 'opcion', disabled: !abierto,
       'aria-pressed': String(estado.turno === turno),
       onclick: () => elegirTurno(turno),
     }, el('strong', { text: NOMBRE_TURNO[turno] }),
-    el('small', { text: abierto ? fechaLarga(estado.fecha) : 'Cerrado ese día' }));
+    el('small', { text: rangoDeTurno(estado.fecha, turno) }));
   });
   $('lista-turnos').replaceChildren(...nodos);
 }
@@ -164,7 +176,7 @@ async function cargarHuecos() {
     const datos = await api(`/api/disponibilidad?${consulta}`);
     // Si el cliente cambió de opinión mientras cargaba, se descarta la respuesta.
     if (pedido !== `${estado.fecha}|${estado.turno}|${estado.servicio}|${estado.duracion}`) return;
-    zona.replaceChildren(datos.huecos.length > 0 ? listaHuecos(datos.huecos) : sinHuecos(datos.otroTurno));
+    zona.replaceChildren(datos.huecos.length > 0 ? listaHuecos(datos.huecos) : sinHuecos());
   } catch (err) {
     zona.replaceChildren(el('p', { class: 'aviso', text: err.message }));
   }
@@ -178,20 +190,19 @@ function listaHuecos(huecos) {
     })));
 }
 
-function sinHuecos(otroTurno) {
-  const acciones = [];
-  if (turnoAbierto(estado.fecha, otroTurno)) {
-    acciones.push(el('button', {
+function sinHuecos() {
+  const acciones = info.turnos
+    .filter((turno) => turno !== estado.turno && turnoAbierto(estado.fecha, turno))
+    .map((turno) => el('button', {
       type: 'button', class: 'boton boton--tinta',
-      onclick: () => elegirTurno(otroTurno),
-      text: `Probar por la ${NOMBRE_TURNO[otroTurno].toLowerCase()}`,
+      onclick: () => elegirTurno(turno),
+      text: `Probar ${EN_TURNO[turno]}`,
     }));
-  }
   acciones.push(el('button', {
     type: 'button', class: 'boton boton--linea', onclick: volverAlDia, text: 'Elegir otro día',
   }));
   return el('div', { class: 'sin-huecos' },
-    el('p', { text: `No nos quedan huecos el ${fechaLarga(estado.fecha)} por la ${NOMBRE_TURNO[estado.turno].toLowerCase()}.` }),
+    el('p', { text: `No nos quedan huecos el ${fechaLarga(estado.fecha)} ${EN_TURNO[estado.turno]}.` }),
     el('div', { class: 'sin-huecos__acciones' }, acciones));
 }
 
@@ -287,10 +298,13 @@ function pintarHorario() {
   // Los días seguidos con el mismo horario se muestran juntos: «Lunes – Viernes».
   const grupos = [];
   DIAS.forEach((nombre, i) => {
-    const texto = info.horario
-      .filter((h) => h.dia === i + 1 && h.activo)
-      .map((h) => `${h.inicio} – ${h.fin}`)
-      .join('  ·  ');
+    const tramos = [];
+    for (const h of info.horario.filter((x) => x.dia === i + 1 && x.activo)) {
+      const ultimo = tramos.at(-1);
+      if (ultimo && h.inicio <= ultimo.fin) tramos[tramos.length - 1] = { ...ultimo, fin: h.fin > ultimo.fin ? h.fin : ultimo.fin };
+      else tramos.push({ inicio: h.inicio, fin: h.fin });
+    }
+    const texto = tramos.map((t) => `${t.inicio} – ${t.fin}`).join('  ·  ');
     const ultimo = grupos.at(-1);
     if (ultimo && ultimo.texto === texto) grupos[grupos.length - 1] = { ...ultimo, hasta: nombre };
     else grupos.push({ desde: nombre, hasta: nombre, texto });

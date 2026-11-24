@@ -5,6 +5,7 @@ import {
   diaSemanaISO,
   esFechaValida,
   huecosLibres,
+  jornadaContinua,
   tramosLibres,
   sumarDias,
 } from '../src/slots.js';
@@ -49,6 +50,26 @@ test('un tramo libre corto solo admite el masaje que cabe', () => {
 test('calcula los tramos libres aunque haya citas solapadas o fuera del turno', () => {
   const ocupadas = [cita('08:30', 60), cita('10:00', 90), cita('10:30', 60), cita('17:00', 60)];
   assert.deepEqual(tramosLibres(540, 810, ocupadas), [{ inicio: 570, fin: 600 }, { inicio: 690, fin: 810 }]);
+});
+
+test('une en una jornada los turnos que van seguidos', () => {
+  const seguidos = [
+    { turno: 'tarde', inicio: 990, fin: 1140 },
+    { turno: 'manana', inicio: 540, fin: 810 },
+    { turno: 'mediodia', inicio: 810, fin: 990 },
+  ];
+  assert.deepEqual(jornadaContinua(seguidos, 'mediodia'), { inicio: 540, fin: 1140 });
+  const partidos = seguidos.filter((t) => t.turno !== 'mediodia');
+  assert.deepEqual(jornadaContinua(partidos, 'manana'), { inicio: 540, fin: 810 });
+  assert.deepEqual(jornadaContinua(partidos, 'tarde'), { inicio: 990, fin: 1140 });
+  assert.equal(jornadaContinua(partidos, 'mediodia'), null);
+});
+
+test('con ventana solo ofrece los huecos que empiezan dentro del turno', () => {
+  const jornada = { ...libre, inicio: 540, fin: 1140, duracion: 75 };
+  assert.deepEqual(huecosLibres({ ...jornada, ventana: { inicio: 540, fin: 810 } }), ['09:00', '10:15', '11:30', '12:45']);
+  assert.deepEqual(huecosLibres({ ...jornada, ventana: { inicio: 810, fin: 990 } }), ['14:00', '15:15']);
+  assert.deepEqual(huecosLibres({ ...jornada, ventana: { inicio: 990, fin: 1140 } }), ['16:30', '17:45']);
 });
 
 test('calcula el día de la semana ISO', () => {

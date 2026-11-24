@@ -77,7 +77,7 @@
 
 /* Horario */
 .tabla-horario { display: grid; gap: 0.2rem; margin-bottom: 1.8rem; }
-.fila-horario { display: grid; grid-template-columns: 8rem 1fr 1fr; gap: 1rem; align-items: center; padding: 0.8rem 0; border-bottom: 1px solid var(--linea); }
+.fila-horario { display: grid; grid-template-columns: 7rem repeat(3, minmax(0, 1fr)); gap: 1rem; align-items: center; padding: 0.8rem 0; border-bottom: 1px solid var(--linea); }
 .fila-horario__dia { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; }
 .turno-edit { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
 .turno-edit label { display: flex; align-items: center; gap: 0.4rem; min-width: 5.6rem; }
@@ -93,6 +93,9 @@
 .dos-columnas { display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; align-items: start; }
 .tarjeta { padding: 1.8rem; background: var(--blanco-roto); border: 1px solid var(--linea); box-shadow: 8px 8px 0 var(--papel-hondo); }
 
+@media (max-width: 1100px) {
+  .fila-horario { grid-template-columns: 1fr; gap: 0.5rem; }
+}
 @media (max-width: 780px) {
   .cita { grid-template-columns: 5rem 1fr; }
   .cita__contacto, .cita__accion { grid-column: 2; }

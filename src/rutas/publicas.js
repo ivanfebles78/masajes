@@ -43,6 +43,7 @@ export function rutasPublicas({ db, notificador, ahora, limitar }) {
         direccion: ajustes.direccion,
         telefono: ajustes.telefono_salon,
         servicios: SERVICIOS,
+        turnos: TURNOS,
         hoy,
         ultimoDia: sumarDias(hoy, ajustes.max_dias),
         horario: horario.map(({ dia_semana, turno, inicio, fin, activo }) => (
@@ -56,8 +57,7 @@ export function rutasPublicas({ db, notificador, ahora, limitar }) {
     const consulta = validarConsulta(req.query);
     const { fecha, turno } = consulta;
     const resultado = await disponibilidad(db, consulta, ahora());
-    const otroTurno = TURNOS.find((t) => t !== turno);
-    res.json({ ok: true, data: { fecha, turno, otroTurno, ...resultado } });
+    res.json({ ok: true, data: { fecha, turno, ...resultado } });
   });
 
   router.post('/citas', limiteReservas, async (req, res) => {

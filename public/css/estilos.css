@@ -213,6 +213,7 @@ a { color: inherit; }
 
 .opciones { display: grid; gap: 0.8rem; }
 .opciones--dos { grid-template-columns: 1fr 1fr; }
+.opciones--tres { grid-template-columns: repeat(3, 1fr); }
 .opcion {
   display: flex; flex-direction: column; align-items: flex-start; gap: 0.2rem; width: 100%;
   padding: 1rem 1.2rem; text-align: left; cursor: pointer;
@@ -338,7 +339,7 @@ input[aria-invalid='true'] { border-color: var(--bermellon); }
 }
 @media (max-width: 520px) {
   .cabecera nav a:not(.boton) { display: none; }
-  .campos-dos, .opciones--dos { grid-template-columns: 1fr; }
+  .campos-dos, .opciones--dos, .opciones--tres { grid-template-columns: 1fr; }
   .marca__nombre { font-size: 1rem; }
 }
 @media (prefers-reduced-motion: reduce) {

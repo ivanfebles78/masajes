@@ -23,6 +23,11 @@ libre según la duración pedida. Con el turno de mañana vacío (9:00–13:30):
 - 90 min → 9:00, 10:30, 12:00
 - 60 min → 9:00, 10:00, 11:00, 12:00
 
+Hay tres turnos (mañana, mediodía y tarde) cuyo rango define el administrador
+para cada día. Los turnos seguidos forman una jornada continua: los huecos se
+encadenan a lo largo de toda ella y cada turno muestra los que empiezan dentro
+de su rango, aunque el masaje termine en el turno siguiente.
+
 Si ya hay una cita de 60 min a las 9:00, lo siguiente empieza a las 10:00, de
 modo que las citas quedan pegadas y no se pierde tiempo entre ellas.
 

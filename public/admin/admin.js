@@ -5,6 +5,7 @@ const $ = (id) => document.getElementById(id);
 const SECCIONES = ['citas', 'horario', 'bloqueos', 'ajustes'];
 const NOMBRE_SERVICIO = { shiatsu: 'Shiatsu Zen', camilla: 'Masaje en camilla' };
 const MS_AVISO = 4000;
+const TURNOS = ['manana', 'mediodia', 'tarde'];
 
 let temporizadorAviso = null;
 
@@ -124,7 +125,7 @@ function editorTurno(fila) {
 function pintarHorario(horario) {
   const filas = DIAS.map((nombre, i) => {
     const delDia = horario.filter((h) => h.dia_semana === i + 1);
-    const orden = ['manana', 'tarde'].map((t) => delDia.find((h) => h.turno === t)).filter(Boolean);
+    const orden = TURNOS.map((t) => delDia.find((h) => h.turno === t)).filter(Boolean);
     return el('div', { class: 'fila-horario' },
       el('p', { class: 'fila-horario__dia', text: nombre }),
       orden.map(editorTurno));
