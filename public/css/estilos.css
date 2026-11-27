@@ -173,6 +173,40 @@ a { color: inherit; }
 .ficha__duracion { font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.8rem; margin: 0.6rem 0 1.2rem; color: var(--musgo); }
 .ficha--desplazada .ficha__duracion { color: #b9c7a9; }
 
+.ficha p + p { margin-top: 0.9rem; }
+.ficha__lema { font-family: var(--serif); font-size: 1.15rem; font-weight: 600; }
+.ficha__nota { font-size: 0.88rem; padding-left: 0.9rem; border-left: 3px solid var(--bermellon); color: var(--tinta-suave); }
+.ficha--desplazada .ficha__nota { color: #cfc6b6; }
+
+/* Tarifas con botón de añadir al carrito */
+.tarifas { list-style: none; margin: 1.6rem 0 0; padding: 0; border-top: 1.5px solid currentColor; }
+.tarifa { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 0.4rem 1rem; padding: 0.75rem 0; border-bottom: 1px solid var(--linea); }
+.ficha--desplazada .tarifa { border-bottom-color: rgba(243, 237, 226, 0.2); }
+.tarifa__texto { display: grid; }
+.tarifa__nombre { font-weight: 700; }
+.tarifa small { font-size: 0.8rem; color: var(--tinta-suave); }
+.ficha--desplazada .tarifa small { color: #b9c7a9; }
+.tarifa__precio { font-family: var(--serif); font-size: 1.3rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.tarifa__anadir {
+  font: 700 0.82rem/1 var(--sans); letter-spacing: 0.04em; padding: 0.6rem 0.9rem; cursor: pointer;
+  background: var(--bermellon); color: var(--blanco-roto); border: 0; border-radius: 2px;
+  transition: background-color var(--rapido), transform var(--rapido) var(--salida);
+}
+.tarifa__anadir:hover { background: var(--bermellon-hondo); transform: translateY(-2px); }
+.tarifa__anadir:active { transform: translateY(0); }
+.masajes__regalo { display: flex; align-items: center; gap: 1rem; margin-top: clamp(2rem, 4vw, 3.5rem); font-family: var(--serif); font-size: 1.2rem; }
+.masajes__regalo span {
+  display: grid; place-items: center; flex: none; width: 2.8rem; height: 2.8rem;
+  border: 2px solid var(--bermellon); color: var(--bermellon); border-radius: 4px; font-weight: 800; transform: rotate(-5deg);
+}
+
+/* ---------- Ventosas ---------- */
+.ventosas { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(2rem, 5vw, 5rem); padding: 0 var(--margen) var(--seccion); }
+.ventosas__texto p + p { margin-top: 1rem; }
+.ventosas__lista { margin: 1rem 0 0; padding: 0; list-style: none; display: grid; gap: 0.6rem; }
+.ventosas__lista li { padding-left: 1.6rem; position: relative; }
+.ventosas__lista li::before { content: ''; position: absolute; left: 0; top: 0.55em; width: 0.7rem; height: 0.7rem; border: 2px solid var(--bermellon); border-radius: 50%; }
+
 /* ---------- Franja de ambiente ---------- */
 .franja { position: relative; margin: 0; overflow: hidden; }
 .franja img { display: block; width: 100%; height: clamp(18rem, 46vw, 34rem); object-fit: cover; }
@@ -308,6 +342,81 @@ input[aria-invalid='true'] { border-color: var(--bermellon); }
 .confirmada__cuando { font-family: var(--serif); font-size: 1.3rem; margin: 1rem 0 1.4rem; }
 .confirmada__avisos { list-style: none; padding: 0; margin: 0 0 2rem; display: grid; gap: 0.4rem; color: var(--tinta-suave); }
 
+/* ---------- Política de reservas ---------- */
+.politica { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(2rem, 5vw, 5rem); padding: var(--seccion) var(--margen) 0; }
+.politica__gracias { margin-top: 1.4rem; color: var(--tinta-suave); max-width: 38ch; }
+.politica__lista { margin: 0; display: grid; gap: 0; }
+.politica__lista > div { padding: 1.2rem 0; border-bottom: 1px solid var(--linea); }
+.politica__lista > div:first-child { border-top: 2px solid var(--tinta); }
+.politica__lista dt { font-family: var(--serif); font-size: 1.25rem; font-weight: 600; margin-bottom: 0.35rem; }
+.politica__lista dd { margin: 0; }
+
+/* ---------- Contacto y corporativo ---------- */
+.contacto {
+  display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.9fr); gap: clamp(2rem, 5vw, 5rem); align-items: end;
+  margin-top: var(--seccion); padding: var(--seccion) var(--margen);
+  background: var(--musgo) var(--grano); color: var(--blanco-roto);
+}
+.contacto h2 { font-size: clamp(1.8rem, 1.2rem + 2.4vw, 3rem); max-width: 18ch; }
+.contacto__dudas > p:not(.antetitulo) { margin-top: 1.2rem; max-width: 44ch; }
+.contacto .antetitulo--claro { color: #f3c9bb; }
+.contacto__vias { display: flex; flex-wrap: wrap; gap: 0.8rem 1.4rem; }
+.contacto__vias a {
+  font-family: var(--serif); font-size: clamp(1.15rem, 1rem + 0.8vw, 1.5rem); font-weight: 600; color: inherit;
+  text-decoration-thickness: 1.5px; text-underline-offset: 0.3em;
+  transition: color var(--rapido);
+}
+.contacto__vias a:hover { color: #f3c9bb; }
+.contacto__corporativo { padding: 1.6rem; border: 1.5px solid rgba(251, 248, 242, 0.45); }
+.contacto__corporativo h3 { font-size: 1.5rem; margin-bottom: 0.7rem; }
+
+/* ---------- Carrito ---------- */
+.boton-carrito {
+  position: relative; display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer;
+  padding: 0.55rem 0.8rem; background: transparent; color: var(--tinta);
+  border: 1.5px solid var(--linea); border-radius: 999px; font: 700 0.9rem/1 var(--sans);
+  transition: border-color var(--rapido), background-color var(--rapido), color var(--rapido);
+}
+.boton-carrito:hover { border-color: var(--tinta); }
+.boton-carrito.tiene-productos { background: var(--bermellon); border-color: var(--bermellon); color: var(--blanco-roto); }
+.carrito {
+  width: min(32rem, 100%); max-width: 100%; height: 100dvh; max-height: 100dvh; margin: 0 0 0 auto; padding: 0;
+  border: 0; background: var(--papel) var(--grano); color: var(--tinta);
+  box-shadow: -20px 0 60px rgba(29, 27, 24, 0.35);
+}
+.carrito::backdrop { background: rgba(29, 27, 24, 0.55); }
+.carrito[open] { animation: entrar-carrito var(--normal) var(--salida); }
+@keyframes entrar-carrito { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+.carrito__caja { padding: clamp(1.2rem, 4vw, 2rem); min-height: 100%; }
+.carrito__cabecera { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.carrito__cabecera h2 { font-size: 2rem; }
+.carrito__cerrar { width: 2.6rem; height: 2.6rem; font-size: 1.6rem; line-height: 1; cursor: pointer; background: transparent; color: var(--tinta); border: 1.5px solid var(--linea); border-radius: 50%; transition: background-color var(--rapido), color var(--rapido); }
+.carrito__cerrar:hover { background: var(--tinta); color: var(--papel); }
+.carrito__aviso { min-height: 1.4em; font-size: 0.88rem; color: var(--musgo); font-weight: 700; }
+.carrito__vacio { padding: 2rem 1rem; text-align: center; font-family: var(--serif); font-size: 1.15rem; color: var(--tinta-suave); border: 1.5px dashed var(--linea); }
+.carrito__lineas { list-style: none; margin: 0.6rem 0 0; padding: 0; border-top: 2px solid var(--tinta); }
+.linea { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 0.8rem; padding: 0.9rem 0; border-bottom: 1px solid var(--linea); }
+.linea__texto { display: grid; font-weight: 700; }
+.linea__texto small { font-weight: 400; font-size: 0.82rem; color: var(--tinta-suave); }
+.linea__cantidad { display: inline-flex; align-items: center; gap: 0.5rem; }
+.linea__cantidad button { width: 2rem; height: 2rem; font-size: 1.1rem; line-height: 1; cursor: pointer; background: var(--blanco-roto); color: var(--tinta); border: 1.5px solid var(--linea); border-radius: 50%; transition: border-color var(--rapido); }
+.linea__cantidad button:hover:not([disabled]) { border-color: var(--tinta); }
+.linea__cantidad button[disabled] { opacity: 0.35; cursor: not-allowed; }
+.linea__cantidad span { min-width: 1.2rem; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+.linea__importe { min-width: 4.2rem; text-align: right; font-family: var(--serif); font-size: 1.15rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.carrito__total { display: flex; justify-content: space-between; align-items: baseline; margin: 1rem 0 1.6rem; font-size: 1.1rem; }
+.carrito__total strong { font-family: var(--serif); font-size: 2rem; }
+.casilla { display: flex; align-items: center; gap: 0.6rem; margin: 0.4rem 0 1rem; cursor: pointer; }
+.casilla input { width: 1.15rem; height: 1.15rem; accent-color: var(--bermellon); }
+
+/* Página de vuelta del pago */
+.pago { max-width: 34rem; }
+.pago h1 { margin-bottom: 1rem; }
+.pago__lineas { list-style: none; margin: 1.6rem 0 0; padding: 0; text-align: left; border-top: 2px solid var(--tinta); }
+.pago__lineas li { display: flex; justify-content: space-between; gap: 1rem; padding: 0.7rem 0; border-bottom: 1px solid var(--linea); }
+.pago__lineas .es-total { font-family: var(--serif); font-size: 1.25rem; font-weight: 800; }
+.pago__acciones { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8rem; margin-top: 2rem; }
+
 /* ---------- Horario ---------- */
 .horario { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(2rem, 5vw, 5rem); padding: var(--seccion) var(--margen); }
 .horario__direccion { margin-top: 1.4rem; font-size: 1.1em; }
@@ -326,7 +435,7 @@ input[aria-invalid='true'] { border-color: var(--bermellon); }
 
 /* ---------- Adaptación ---------- */
 @media (max-width: 860px) {
-  .portada, .reserva, .horario, .masajes__rejilla { grid-template-columns: 1fr; }
+  .portada, .reserva, .horario, .masajes__rejilla, .ventosas, .politica, .contacto { grid-template-columns: 1fr; }
   .portada__arte { order: -1; justify-items: center; padding: 1rem 0 2.5rem; }
   .portada__foto { width: min(72%, 20rem); box-shadow: 10px 10px 0 var(--tinta); }
   .portada__detalle { left: 2%; width: 34%; }
@@ -339,6 +448,10 @@ input[aria-invalid='true'] { border-color: var(--bermellon); }
 }
 @media (max-width: 520px) {
   .cabecera nav a:not(.boton) { display: none; }
+  .tarifa { grid-template-columns: 1fr auto; }
+  .tarifa__anadir { grid-column: 1 / -1; justify-self: start; }
+  .linea { grid-template-columns: 1fr auto; }
+  .linea__importe { grid-column: 1 / -1; text-align: left; }
   .campos-dos, .opciones--dos, .opciones--tres { grid-template-columns: 1fr; }
   .marca__nombre { font-size: 1rem; }
 }

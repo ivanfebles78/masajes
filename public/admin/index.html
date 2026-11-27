@@ -36,6 +36,7 @@
       <p class="barra__titulo"><span class="marca__sello" aria-hidden="true">指</span> <span id="nombre-salon">Panel</span></p>
       <nav class="pestanas" role="tablist" aria-label="Secciones">
         <button role="tab" type="button" data-pestana="citas" aria-selected="true">Citas</button>
+        <button role="tab" type="button" data-pestana="pedidos" aria-selected="false">Pedidos</button>
         <button role="tab" type="button" data-pestana="horario" aria-selected="false">Horario</button>
         <button role="tab" type="button" data-pestana="bloqueos" aria-selected="false">Días cerrados</button>
         <button role="tab" type="button" data-pestana="ajustes" aria-selected="false">Ajustes</button>
@@ -57,6 +58,14 @@
           </form>
         </div>
         <div id="lista-citas"></div>
+      </section>
+
+      <section id="seccion-pedidos" role="tabpanel" hidden>
+        <div class="titulo-seccion">
+          <h1>Pedidos</h1>
+          <p class="nota">Sesiones y bonos pagados online. Solo cuentan los que están en «Pagado».</p>
+        </div>
+        <div id="lista-pedidos"></div>
       </section>
 
       <section id="seccion-horario" role="tabpanel" hidden>

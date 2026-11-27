@@ -18,6 +18,7 @@ const VENTANA_LOGIN_MS = 15 * 60 * 1000;
 const MAX_INTENTOS_LOGIN = 10;
 const DIAS_LISTADO = 60;
 const MAX_DIAS_LISTADO = 400;
+const MAX_PEDIDOS_LISTADO = 200;
 // Hash de relleno para que el login tarde lo mismo exista o no el usuario.
 const HASH_SENUELO = bcrypt.hashSync(randomBytes(16).toString('hex'), COSTE_BCRYPT);
 
@@ -113,6 +114,20 @@ export function rutasAdmin({ db, ahora, limitar }) {
     );
     if (rows.length === 0) return res.status(404).json({ ok: false, error: 'La cita no existe o ya estaba cancelada.' });
     res.json({ ok: true });
+  });
+
+  router.get('/pedidos', async (_req, res) => {
+    const { rows } = await db.query(
+      `SELECT p.id, p.codigo, p.nombre, p.email, p.telefono, p.es_regalo, p.regalo_para, p.regalo_mensaje,
+              p.total_cent, p.estado,
+              to_char(p.creado_en AT TIME ZONE 'Europe/Madrid', 'YYYY-MM-DD HH24:MI') AS creado,
+              COALESCE((
+                SELECT json_agg(json_build_object('nombre', l.nombre, 'cantidad', l.cantidad) ORDER BY l.id)
+                FROM pedido_lineas l WHERE l.pedido_id = p.id
+              ), '[]'::json) AS lineas
+       FROM pedidos p ORDER BY (p.estado = 'pagado') DESC, p.creado_en DESC, p.id DESC LIMIT ${MAX_PEDIDOS_LISTADO}`,
+    );
+    res.json({ ok: true, data: { pedidos: rows } });
   });
 
   router.get('/horario', async (_req, res) => {

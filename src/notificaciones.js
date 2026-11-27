@@ -22,9 +22,8 @@ function textoConfirmacion(cita, ajustes) {
     `${nombreServicio(cita)} · ${fechaLarga(cita.fecha)} a las ${cita.hora} (${cita.duracion} min).`,
   ];
   if (ajustes.direccion) lineas.push(ajustes.direccion);
-  if (ajustes.telefono_salon) {
-    lineas.push(`Si necesitas cambiarla o anularla, llámanos al ${ajustes.telefono_salon}.`);
-  }
+  lineas.push(`Si necesitas cambiarla o anularla, avisa con al menos 24 horas de antelación${
+    ajustes.telefono_salon ? ` al ${ajustes.telefono_salon}` : ''}.`);
   return lineas.join('\n');
 }
 
@@ -49,11 +48,50 @@ function htmlConfirmacion(cita, ajustes) {
 </div></body></html>`;
 }
 
+const euros = (centimos) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(centimos / 100);
+
+function textoPedido(pedido, ajustes, urlBase) {
+  const lineas = [
+    `Hola ${pedido.nombre}, hemos recibido tu pago en ${ajustes.nombre_salon}.`,
+    `Pedido ${pedido.codigo}:`,
+    ...pedido.lineas.map((l) => `- ${l.cantidad} × ${l.nombre}: ${euros(l.precio_cent * l.cantidad)}`),
+    `Total pagado: ${euros(pedido.total_cent)}`,
+  ];
+  if (pedido.es_regalo) {
+    lineas.push(`Es un regalo${pedido.regalo_para ? ` para ${pedido.regalo_para}` : ''}. Te escribiremos para preparar la tarjeta regalo.`);
+  }
+  lineas.push(`Reserva tu sesión cuando quieras en ${urlBase}/#reservar indicando este mismo correo.`);
+  if (ajustes.telefono_salon) lineas.push(`¿Dudas? Escríbenos al ${ajustes.telefono_salon}.`);
+  return lineas.join('\n');
+}
+
+function htmlPedido(pedido, ajustes, urlBase) {
+  const e = escaparHtml;
+  const filas = pedido.lineas.map((l) => (
+    `<tr><td style="padding:6px 0">${e(l.cantidad)} × ${e(l.nombre)}</td>` +
+    `<td style="padding:6px 0;text-align:right;white-space:nowrap">${e(euros(l.precio_cent * l.cantidad))}</td></tr>`
+  )).join('');
+  const regalo = pedido.es_regalo
+    ? `<p style="margin:20px 0 0;font-size:15px">Es un regalo${pedido.regalo_para ? ` para ${e(pedido.regalo_para)}` : ''}. Te escribiremos para preparar la tarjeta regalo.</p>`
+    : '';
+  return `<!doctype html><html lang="es"><body style="margin:0;background:#f4efe6;font-family:Georgia,serif;color:#1c1a17">
+<div style="max-width:520px;margin:0 auto;padding:40px 28px">
+  <p style="margin:0;letter-spacing:.2em;text-transform:uppercase;font-size:12px;color:#c8371f">${e(ajustes.nombre_salon)}</p>
+  <h1 style="margin:12px 0 24px;font-size:28px;font-weight:normal">Pago recibido</h1>
+  <p style="margin:0 0 16px;font-size:16px">Hola ${e(pedido.nombre)}, gracias. Este es tu pedido <strong>${e(pedido.codigo)}</strong>:</p>
+  <table style="width:100%;border-collapse:collapse;font-size:15px;border-top:1px solid #d8cfc0;border-bottom:1px solid #d8cfc0">${filas}</table>
+  <p style="margin:14px 0 0;font-size:18px;text-align:right">Total pagado: <strong>${e(euros(pedido.total_cent))}</strong></p>
+  ${regalo}
+  <p style="margin:24px 0 0;font-size:15px">Reserva tu sesión cuando quieras en <a href="${e(urlBase)}/#reservar" style="color:#c8371f">${e(urlBase.replace(/^https?:\/\//, ''))}</a>, indicando este mismo correo.</p>
+</div></body></html>`;
+}
+
 export function crearNotificador({ env = process.env, fetchImpl = fetch, log = console } = {}) {
-  async function enviarCorreo(cita, ajustes) {
-    const base = { canal: 'email', destino: cita.email };
+  /** Envía un correo por Resend. `ref` identifica el envío en los logs sin datos personales. */
+  async function mandarCorreo({ destino, asunto, html, texto, ref }) {
+    const base = { canal: 'email', destino };
     if (!env.RESEND_API_KEY || !env.MAIL_FROM) {
-      log.warn('[avisos] Correo SIMULADO (faltan RESEND_API_KEY o MAIL_FROM) para la cita', cita.id);
+      log.warn('[avisos] Correo SIMULADO (faltan RESEND_API_KEY o MAIL_FROM):', ref);
       return { ...base, estado: 'simulado', detalle: 'Resend sin configurar' };
     }
     try {
@@ -63,22 +101,16 @@ export function crearNotificador({ env = process.env, fetchImpl = fetch, log = c
           Authorization: `Bearer ${env.RESEND_API_KEY}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          from: env.MAIL_FROM,
-          to: [cita.email],
-          subject: `Cita confirmada · ${fechaLarga(cita.fecha)} a las ${cita.hora}`,
-          html: htmlConfirmacion(cita, ajustes),
-          text: textoConfirmacion(cita, ajustes),
-        }),
+        body: JSON.stringify({ from: env.MAIL_FROM, to: [destino], subject: asunto, html, text: texto }),
         signal: AbortSignal.timeout(TIEMPO_MAX_MS),
       });
       if (!respuesta.ok) {
-        log.error('[avisos] Resend rechazó el correo de la cita', cita.id, respuesta.status);
+        log.error('[avisos] Resend rechazó el correo:', ref, respuesta.status);
         return { ...base, estado: 'error', detalle: `Resend ${respuesta.status}` };
       }
       return { ...base, estado: 'enviado', detalle: '' };
     } catch (err) {
-      log.error('[avisos] Fallo al enviar el correo de la cita', cita.id, err.message);
+      log.error('[avisos] Fallo al enviar el correo:', ref, err.message);
       return { ...base, estado: 'error', detalle: err.message.slice(0, 200) };
     }
   }
@@ -93,10 +125,29 @@ export function crearNotificador({ env = process.env, fetchImpl = fetch, log = c
   /** Envía los avisos que correspondan según los datos que dejó el cliente. */
   async function enviarConfirmacion(cita, ajustes) {
     const avisos = [];
-    if (cita.email) avisos.push(await enviarCorreo(cita, ajustes));
+    if (cita.email) {
+      avisos.push(await mandarCorreo({
+        destino: cita.email,
+        asunto: `Cita confirmada · ${fechaLarga(cita.fecha)} a las ${cita.hora}`,
+        html: htmlConfirmacion(cita, ajustes),
+        texto: textoConfirmacion(cita, ajustes),
+        ref: `cita ${cita.id}`,
+      }));
+    }
     if (cita.telefono && cita.canal) avisos.push(enviarMensajeMovil(cita, ajustes));
     return avisos;
   }
 
-  return { enviarConfirmacion };
+  /** Justificante de un pedido pagado online. */
+  function enviarPedido(pedido, ajustes, urlBase) {
+    return mandarCorreo({
+      destino: pedido.email,
+      asunto: `Pago recibido · pedido ${pedido.codigo}`,
+      html: htmlPedido(pedido, ajustes, urlBase),
+      texto: textoPedido(pedido, ajustes, urlBase),
+      ref: `pedido ${pedido.codigo}`,
+    });
+  }
+
+  return { enviarConfirmacion, enviarPedido };
 }

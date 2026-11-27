@@ -6,6 +6,10 @@ administración. Node 20+ · Express 5 · PostgreSQL · sin paso de compilación
 ## Qué hace
 
 - **Dos masajes**: Shiatsu Zen (75 min) y masaje en camilla (60 o 90 min).
+- **Tienda con carrito**: sesiones sueltas y bonos con los precios del programa
+  (`PRODUCTOS` en `src/config.js`), opción de regalo y pago con tarjeta en la
+  página alojada de Stripe. El pedido solo pasa a «pagado» cuando Stripe lo
+  confirma (aviso firmado o consulta directa al volver a la web).
 - **Reserva en 5 pasos**: masaje → día → turno (mañana/tarde) → hora → datos.
   El cliente nunca ve la ocupación de un día entero: solo los huecos del turno
   que pide. Si no quedan, se le ofrece el otro turno u otro día.
@@ -57,10 +61,26 @@ pierden al reiniciar. Para conservarlos, define `PGLITE_DIR=./pgdata` o apunta
 | `RESEND_API_KEY` | para el correo | clave de Resend |
 | `MAIL_FROM` | para el correo | remitente verificado, p. ej. `Salón <citas@tudominio.es>` |
 | `PGSSL=true` | solo si la BD exige SSL | conexión externa a Postgres |
+| `STRIPE_SECRET_KEY` | para cobrar online | clave secreta de Stripe (`sk_test_…` para pruebas, `sk_live_…` en real) |
+| `STRIPE_WEBHOOK_SECRET` | recomendada | secreto `whsec_…` del webhook de Stripe |
+| `PUBLIC_URL` | no | dirección pública si no es la de Railway (dominio propio) |
 | `ADMIN_PASSWORD` | sí (primer arranque) | contraseña inicial del usuario `admin`; se guarda hasheada |
 
 El esquema se crea solo al arrancar. Sin `RESEND_API_KEY`/`MAIL_FROM` los
 correos **no se envían** (quedan como «simulado» en el panel).
+
+### Activar el pago con Stripe
+
+1. En Stripe, copia la clave secreta (Desarrolladores → Claves de API) y ponla
+   en `STRIPE_SECRET_KEY`. Empieza con la de **modo de prueba**.
+2. Crea un webhook (Desarrolladores → Webhooks) hacia
+   `https://TU-DOMINIO/api/stripe/webhook` con los eventos
+   `checkout.session.completed`, `checkout.session.async_payment_succeeded` y
+   `checkout.session.expired`; copia su secreto en `STRIPE_WEBHOOK_SECRET`.
+3. Prueba una compra con la tarjeta de prueba `4242 4242 4242 4242`.
+
+Sin `STRIPE_SECRET_KEY` la tienda muestra los precios y el carrito, pero el
+botón de pagar queda desactivado.
 
 ## Administración
 
@@ -74,5 +94,8 @@ cambiarla cierra el resto de sesiones abiertas.
 - Proveedor real de WhatsApp/SMS (el punto de enganche es
   `enviarMensajeMovil` en `src/notificaciones.js`).
 - Aviso al cliente cuando el administrador cancela una cita.
+- Los pagos online no están enlazados con las citas ni se descuentan sesiones
+  de los bonos: el administrador lo comprueba en la pestaña Pedidos.
+- Precios editables desde el panel (ahora están en `src/config.js`).
 - Textos legales (privacidad/RGPD) y datos reales del salón (nombre, dirección
   y teléfono se editan en Ajustes).

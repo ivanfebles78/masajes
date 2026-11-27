@@ -77,6 +77,13 @@ export function fechaLarga(fecha) {
     .format(aUTC(fecha));
 }
 
+const FORMATO_EUROS = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
+/** 5500 → «55 €». */
+export function euros(centimos) {
+  return FORMATO_EUROS.format(centimos / 100);
+}
+
 export function mayuscula(texto) {
   return texto.charAt(0).toUpperCase() + texto.slice(1);
 }

@@ -6,17 +6,25 @@ import cookieSession from 'cookie-session';
 import { LIMITES } from './config.js';
 import { rutasPublicas } from './rutas/publicas.js';
 import { rutasAdmin } from './rutas/admin.js';
+import { rutasTienda, rutaWebhook } from './rutas/tienda.js';
+import { crearPagos } from './pagos.js';
 
 const DIR_PUBLICO = fileURLToPath(new URL('../public', import.meta.url));
 const LIMITE_JSON = '10kb';
 
 /**
  * @param {{ db: object, notificador: object, secretoSesion: string,
- *           produccion?: boolean, limitar?: boolean, saltosProxy?: number, ahora?: () => Date }} opciones
+ *           produccion?: boolean, limitar?: boolean, saltosProxy?: number, ahora?: () => Date,
+ *           pagos?: object, urlBase?: string }} opciones
  */
 export function crearApp({
   db, notificador, secretoSesion, produccion = false, limitar = true, saltosProxy = 1, ahora = () => new Date(),
+  pagos = crearPagos({ env: {} }), urlBase = '',
 }) {
+  // Dirección pública para volver de Stripe. Fija por configuración en
+  // producción; en desarrollo se deduce de la petición.
+  const urlPublica = (req) => urlBase || `${req.protocol}://${req.get('host')}`;
+
   const app = express();
   app.disable('x-powered-by');
   if (produccion) app.set('trust proxy', saltosProxy);
@@ -40,6 +48,9 @@ export function crearApp({
     referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   }));
 
+  // El aviso de Stripe va antes de express.json: su firma se calcula sobre el cuerpo sin procesar.
+  app.use('/api/stripe/webhook', rutaWebhook({ db, pagos, notificador, urlPublica }));
+
   app.use(express.json({ limit: LIMITE_JSON }));
   app.use(cookieSession({
     name: 'sesion',
@@ -55,7 +66,8 @@ export function crearApp({
     res.set('Cache-Control', 'no-store');
     next();
   }, rutasAdmin({ db, ahora, limitar }));
-  app.use('/api', rutasPublicas({ db, notificador, ahora, limitar }));
+  app.use('/api', rutasPublicas({ db, notificador, ahora, limitar, pagos }));
+  app.use('/api', rutasTienda({ db, pagos, notificador, limitar, urlPublica }));
   app.use('/api', (_req, res) => res.status(404).json({ ok: false, error: 'No encontrado.' }));
 
   // Sin caché larga: los ficheros no llevan huella y deben ir a la par que la API.

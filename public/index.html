@@ -22,7 +22,12 @@
     </a>
     <nav aria-label="Navegación principal">
       <a href="#masajes">Masajes</a>
+      <a href="#politica">Reservas</a>
       <a href="#horario">Horario</a>
+      <button type="button" class="boton-carrito" id="abrir-carrito" aria-label="Carrito: 0 productos">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 8h14l-1.2 11H6.2L5 8Zm4 0V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        <span id="carrito-contador">0</span>
+      </button>
       <a class="boton boton--tinta" href="#reservar">Reservar</a>
     </nav>
   </header>
@@ -33,8 +38,8 @@
         <p class="antetitulo">Estella · Lizarra</p>
         <h1 id="titulo-portada">Manos que <em>escuchan</em> al cuerpo.</h1>
         <p class="portada__entrada">
-          Shiatsu Zen y masaje en camilla, sin prisas. Una sesión pausada,
-          una sola persona atendiéndote y el tiempo que tu espalda lleva pidiendo.
+          Shiatsu Zen y masaje en camilla con enfoque de Medicina China. Un
+          espacio para parar, escucharte y volver a conectar contigo.
         </p>
         <div class="portada__acciones">
           <a class="boton boton--bermellon" href="#reservar">Reservar cita</a>
@@ -64,24 +69,85 @@
                alt="Sala de shiatsu con futón sobre tatami y luz natural">
           <span class="ficha__numero">一</span>
           <h3>Shiatsu Zen</h3>
-          <p class="ficha__duracion">75 minutos</p>
+          <p class="ficha__duracion">75 minutos · 55 €</p>
           <p>
-            Para periodos de estrés, ansiedad, agotamiento mental y físico o bloqueos
-            emocionales. Una sesión más pausada y meditativa que incluye
-            estiramientos suaves.
+            Una experiencia de cuidado integral a través de presiones suaves y
+            sostenidas, estiramientos adaptados y un trabajo corporal profundo y
+            consciente, que ayuda a liberar tensiones, mejorar la movilidad y
+            favorecer el equilibrio del organismo.
           </p>
+          <p>
+            Cada sesión se adapta a tus necesidades y al momento en el que te
+            encuentras, prestando atención a tu cuerpo, tu respiración y tus
+            sensaciones.
+          </p>
+          <p>
+            El Shiatsu puede acompañarte en situaciones de estrés, cansancio,
+            dificultades para dormir, molestias musculares y articulares,
+            cefaleas, tensiones digestivas o alteraciones del ciclo menstrual.
+            También puede ser un apoyo en momentos de sobrecarga física y
+            emocional, favoreciendo la relajación y el bienestar general.
+          </p>
+          <p class="ficha__lema">Un espacio para parar, escucharte y volver a conectar contigo.</p>
+          <p class="ficha__nota">
+            El Shiatsu se recibe con ropa cómoda. Puedes traer la tuya o, si lo
+            prefieres, dispongo de ropa para cambiarte durante la sesión.
+          </p>
+          <ul class="tarifas" data-tarifas="shiatsu" aria-label="Tarifas de Shiatsu Zen"></ul>
         </article>
         <article class="ficha ficha--desplazada">
           <img class="ficha__foto" src="/img/camilla.webp" width="1100" height="739" loading="lazy" decoding="async"
                alt="Camilla de masaje preparada con sábanas de lino">
           <span class="ficha__numero">二</span>
           <h3>Masaje en camilla</h3>
-          <p class="ficha__duracion">60 o 90 minutos</p>
+          <p class="ficha__duracion">Enfoque de Medicina China · 60 o 90 minutos</p>
           <p>
-            Trabajo manual sobre camilla para descargar la musculatura. Tú eliges
-            si quieres una hora o una sesión larga de hora y media.
+            Un masaje personalizado que combina diferentes técnicas y recursos
+            de trabajo corporal, integrando influencias del Shiatsu, el masaje
+            hawaiano y la Medicina Tradicional China.
           </p>
+          <p>
+            A través de maniobras, presiones, movilizaciones y estiramientos
+            adaptados a cada persona, se busca liberar tensiones, favorecer la
+            circulación y proporcionar una sensación profunda de descanso y
+            bienestar.
+          </p>
+          <p>
+            Según tus necesidades y el criterio de la sesión, el trabajo puede
+            complementarse con técnicas tradicionales como las ventosas o la
+            moxibustión.
+          </p>
+          <p class="ficha__lema">Cada masaje es diferente, porque cada cuerpo y cada momento necesitan algo distinto.</p>
+          <ul class="tarifas" data-tarifas="camilla" aria-label="Tarifas de masaje en camilla"></ul>
         </article>
+      </div>
+      <p class="masajes__regalo">
+        <span aria-hidden="true">贈</span>
+        Regala una sesión o un bono: añádelo al carrito y marca «Es un regalo».
+      </p>
+    </section>
+
+    <section class="ventosas" id="ventosas" aria-labelledby="titulo-ventosas">
+      <div>
+        <p class="antetitulo">Técnicas tradicionales</p>
+        <h2 id="titulo-ventosas">Ventosas.</h2>
+      </div>
+      <div class="ventosas__texto">
+        <p>
+          La técnica de las ventosas (<i lang="en">cupping</i>) pertenece a la medicina
+          tradicional china y se utiliza desde hace miles de años. Consiste en
+          aplicar una ventosa sobre la piel y provocar un efecto de vacío para
+          mejorar la vascularización local de la zona, permitiendo un mayor
+          flujo de oxígeno y nutrientes y una mejor retirada de sustancias de
+          desecho.
+        </p>
+        <p>Se aplica como complemento del masaje, cuando la sesión lo pide. Tradicionalmente se emplea para:</p>
+        <ul class="ventosas__lista">
+          <li>Aliviar tensiones y molestias musculares por sobrecarga o actividad física.</li>
+          <li>Favorecer la circulación y la recuperación de la zona tratada.</li>
+          <li>Acompañar la digestión.</li>
+          <li>Ayudar a relajarse y a descansar mejor.</li>
+        </ul>
       </div>
     </section>
 
@@ -165,7 +231,7 @@
               </div>
               <p class="aviso" id="aviso-datos" role="alert" hidden></p>
               <button class="boton boton--bermellon boton--ancho" type="submit" id="boton-confirmar">Confirmar cita</button>
-              <p class="nota">Usamos tus datos solo para gestionar esta cita.</p>
+              <p class="nota">Usamos tus datos solo para gestionar esta cita. Al reservar aceptas la <a href="#politica">política de reservas</a>: los cambios y cancelaciones se avisan con 24 horas.</p>
             </form>
           </li>
         </ol>
@@ -177,6 +243,49 @@
           <ul class="confirmada__avisos" id="confirmada-avisos"></ul>
           <button type="button" class="boton boton--linea" id="otra-cita">Reservar otra cita</button>
         </div>
+      </div>
+    </section>
+
+    <section class="politica" id="politica" aria-labelledby="titulo-politica">
+      <div>
+        <p class="antetitulo">Antes de venir</p>
+        <h2 id="titulo-politica">Política de reservas.</h2>
+        <p class="politica__gracias">
+          Gracias por tu comprensión y colaboración. Esta política me permite
+          respetar mi tiempo de trabajo y ofrecer ese horario a otras personas
+          que puedan estar esperando una cita.
+        </p>
+      </div>
+      <dl class="politica__lista">
+        <div>
+          <dt>Cancelaciones y cambios de cita</dt>
+          <dd>Se ruega avisar con al menos 24 horas de antelación. En caso contrario, se cobrará el 50 % del importe de la sesión.</dd>
+        </div>
+        <div>
+          <dt>Llegadas tarde</dt>
+          <dd>Haré todo lo posible por adaptarme, aunque la duración de la sesión podría reducirse para respetar el horario del siguiente cliente.</dd>
+        </div>
+        <div>
+          <dt>Formas de pago</dt>
+          <dd>Se acepta pago en efectivo y Bizum.<span data-pago-online hidden> Las sesiones y los bonos también se pueden pagar con tarjeta desde esta web.</span></dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="contacto" id="contacto" aria-labelledby="titulo-contacto">
+      <div class="contacto__dudas">
+        <p class="antetitulo antetitulo--claro">¿Hablamos?</p>
+        <h2 id="titulo-contacto">¿Todavía tienes dudas sobre qué sesión elegir?</h2>
+        <p>¿Necesitas concertar una cita en un horario específico? Escríbeme o envíame un mensaje.</p>
+        <p class="contacto__vias">
+          <a href="mailto:eiderlv@gmail.com">eiderlv@gmail.com</a>
+          <a href="tel:+34680729631">+34 680 72 96 31</a>
+        </p>
+      </div>
+      <div class="contacto__corporativo">
+        <p class="antetitulo antetitulo--claro">Para empresas</p>
+        <h3>Pausa(t)Zen corporativo</h3>
+        <p>Programas de bienestar laboral basados en el Shiatsu y la medicina tradicional china. Escríbeme y preparamos una propuesta a medida.</p>
       </div>
     </section>
 
@@ -196,6 +305,57 @@
     <a href="/admin/">Acceso administración</a>
   </footer>
 
+  <dialog class="carrito" id="carrito" aria-labelledby="carrito-titulo">
+    <div class="carrito__caja">
+      <header class="carrito__cabecera">
+        <h2 id="carrito-titulo">Tu carrito</h2>
+        <button type="button" class="carrito__cerrar" id="cerrar-carrito" aria-label="Cerrar el carrito">×</button>
+      </header>
+      <p class="carrito__aviso" id="carrito-aviso" role="status"></p>
+      <p class="carrito__vacio" id="carrito-vacio">Todavía no has añadido nada. Elige una sesión o un bono en la sección de masajes.</p>
+      <div id="carrito-lleno" hidden>
+        <ul class="carrito__lineas" id="carrito-lineas"></ul>
+        <p class="carrito__total"><span>Total</span> <strong id="carrito-total"></strong></p>
+        <form id="form-pago" novalidate>
+          <div class="campo">
+            <label for="pago-nombre">Nombre</label>
+            <input id="pago-nombre" name="nombre" type="text" autocomplete="name" maxlength="80" required>
+          </div>
+          <div class="campos-dos">
+            <div class="campo">
+              <label for="pago-email">Correo (para el justificante)</label>
+              <input id="pago-email" name="email" type="email" autocomplete="email" maxlength="120" required>
+            </div>
+            <div class="campo">
+              <label for="pago-telefono">Teléfono (opcional)</label>
+              <input id="pago-telefono" name="telefono" type="tel" autocomplete="tel" inputmode="tel" maxlength="20">
+            </div>
+          </div>
+          <label class="casilla"><input type="checkbox" name="es_regalo" id="es-regalo"> Es un regalo</label>
+          <div id="campos-regalo" hidden>
+            <div class="campo">
+              <label for="regalo-para">¿Para quién es?</label>
+              <input id="regalo-para" name="regalo_para" type="text" maxlength="80">
+            </div>
+            <div class="campo">
+              <label for="regalo-mensaje">Mensaje para la tarjeta (opcional)</label>
+              <input id="regalo-mensaje" name="regalo_mensaje" type="text" maxlength="300">
+            </div>
+          </div>
+          <div class="trampa" aria-hidden="true">
+            <label for="pago-web">No rellenes este campo</label>
+            <input id="pago-web" name="web" type="text" tabindex="-1" autocomplete="off">
+          </div>
+          <p class="aviso" id="carrito-error" role="alert" hidden></p>
+          <p class="aviso" id="pago-no-disponible" hidden>El pago online estará disponible muy pronto. Mientras tanto puedes reservar tu cita y pagar en el centro, en efectivo o por Bizum.</p>
+          <button class="boton boton--bermellon boton--ancho" type="submit" id="boton-pagar">Pagar con tarjeta</button>
+          <p class="nota">Pago seguro en la página de Stripe: aquí no se guarda ningún dato de tu tarjeta. Después de pagar, reserva tu sesión con el mismo correo.</p>
+        </form>
+      </div>
+    </div>
+  </dialog>
+
   <script type="module" src="/js/reserva.js"></script>
+  <script type="module" src="/js/carrito.js"></script>
 </body>
 </html>

@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { conectarBD, prepararBD } from './db.js';
 import { crearNotificador } from './notificaciones.js';
 import { crearApp } from './app.js';
+import { crearPagos } from './pagos.js';
 
 dotenv.config({ path: fileURLToPath(new URL('../.env', import.meta.url)), quiet: true });
 
@@ -48,7 +49,19 @@ async function arrancar() {
   }
 
   const saltosProxy = Number.isInteger(Number(env.TRUST_PROXY)) && env.TRUST_PROXY !== '' ? Number(env.TRUST_PROXY) : 1;
-  const app = crearApp({ db, notificador: crearNotificador({ env }), secretoSesion, produccion, saltosProxy });
+  const pagos = crearPagos({ env });
+  if (!pagos.activo) console.warn('[pagos] STRIPE_SECRET_KEY sin configurar: el pago online está desactivado.');
+  else if (!pagos.webhookActivo) console.warn('[pagos] STRIPE_WEBHOOK_SECRET sin configurar: los pagos solo se confirman cuando el cliente vuelve a la web.');
+  const dominio = env.RAILWAY_PUBLIC_DOMAIN ? `https://${env.RAILWAY_PUBLIC_DOMAIN}` : '';
+  const urlBase = (env.PUBLIC_URL || dominio).replace(/\/+$/, '');
+
+  if (produccion && pagos.activo && !urlBase) {
+    throw new Error('Falta PUBLIC_URL (dirección pública de la web) para volver de la página de pago.');
+  }
+
+  const app = crearApp({
+    db, notificador: crearNotificador({ env }), secretoSesion, produccion, saltosProxy, pagos, urlBase,
+  });
   const puerto = Number(env.PORT) || PUERTO_POR_DEFECTO;
   const servidor = app.listen(puerto, () => console.info(`[web] Escuchando en el puerto ${puerto}`));
 

@@ -1,7 +1,8 @@
 // Flujo de reserva: masaje → día → turno → hora → datos.
 // El cliente nunca ve la ocupación de un día entero: solo los huecos del
 // turno que ha pedido.
-import { api, el, DIAS, NOMBRE_TURNO, EN_TURNO, NOMBRE_CANAL, diaSemana, fechaLarga, fechaISO, mayuscula, pintarNombre } from './comun.js';
+import { infoLista } from './info.js';
+import { api, el, euros, DIAS, NOMBRE_TURNO, EN_TURNO, NOMBRE_CANAL, diaSemana, fechaLarga, fechaISO, mayuscula, pintarNombre } from './comun.js';
 
 const $ = (id) => document.getElementById(id);
 const PASOS_POSTERIORES = {
@@ -63,6 +64,12 @@ function elegirServicio(servicio, duracion) {
   }
 }
 
+/** « · 55 €» si esa sesión tiene precio en el catálogo. */
+function precioDe(servicio, duracion) {
+  const sesion = info.productos.find((p) => p.tipo === 'sesion' && p.servicio === servicio && p.duracion === duracion);
+  return sesion ? ` · ${euros(sesion.precio_cent)}` : '';
+}
+
 function pintarServicios() {
   const nodos = info.servicios.map((servicio) => {
     const activo = estado.servicio === servicio.id;
@@ -71,7 +78,7 @@ function pintarServicios() {
       return el('button', {
         type: 'button', class: 'opcion', 'aria-pressed': String(activo),
         onclick: () => elegirServicio(servicio, duracion),
-      }, el('strong', { text: servicio.nombre }), el('small', { text: `${duracion} minutos` }));
+      }, el('strong', { text: servicio.nombre }), el('small', { text: `${duracion} minutos${precioDe(servicio.id, duracion)}` }));
     }
     return el('div', { class: `servicio${activo ? ' es-activo' : ''}` },
       el('p', { class: 'servicio__titulo', text: servicio.nombre }),
@@ -80,7 +87,7 @@ function pintarServicios() {
           type: 'button', class: 'duracion',
           'aria-pressed': String(activo && estado.duracion === duracion),
           onclick: () => elegirServicio(servicio, duracion),
-          text: `${duracion} minutos`,
+          text: `${duracion} minutos${precioDe(servicio.id, duracion)}`,
         }))));
   });
   $('lista-servicios').replaceChildren(...nodos);
@@ -327,7 +334,7 @@ function pintarDatosSalon() {
 
 async function iniciar() {
   try {
-    info = await api('/api/info');
+    info = await infoLista;
   } catch (err) {
     avisar('aviso-general', err.message);
     return;

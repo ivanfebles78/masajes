@@ -60,6 +60,33 @@ CREATE TABLE IF NOT EXISTS notificaciones (
 );
 CREATE INDEX IF NOT EXISTS notificaciones_cita ON notificaciones (cita_id);
 
+CREATE TABLE IF NOT EXISTS pedidos (
+  id              SERIAL PRIMARY KEY,
+  codigo          TEXT NOT NULL UNIQUE,
+  nombre          TEXT NOT NULL,
+  email           TEXT NOT NULL,
+  telefono        TEXT,
+  es_regalo       BOOLEAN NOT NULL DEFAULT FALSE,
+  regalo_para     TEXT NOT NULL DEFAULT '',
+  regalo_mensaje  TEXT NOT NULL DEFAULT '',
+  total_cent      INTEGER NOT NULL CHECK (total_cent > 0),
+  estado          TEXT NOT NULL DEFAULT 'pendiente' CHECK (estado IN ('pendiente', 'pagado', 'cancelado')),
+  stripe_sesion   TEXT UNIQUE,
+  creado_en       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  pagado_en       TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS pedidos_creado ON pedidos (creado_en DESC);
+
+CREATE TABLE IF NOT EXISTS pedido_lineas (
+  id           SERIAL PRIMARY KEY,
+  pedido_id    INTEGER NOT NULL REFERENCES pedidos (id) ON DELETE CASCADE,
+  producto_id  TEXT NOT NULL,
+  nombre       TEXT NOT NULL,
+  precio_cent  INTEGER NOT NULL CHECK (precio_cent > 0),
+  cantidad     INTEGER NOT NULL CHECK (cantidad BETWEEN 1 AND 10)
+);
+CREATE INDEX IF NOT EXISTS pedido_lineas_pedido ON pedido_lineas (pedido_id);
+
 -- Bases de datos creadas antes de existir el turno de mediodía: se rehacen las
 -- restricciones para admitirlo (es idempotente).
 ALTER TABLE horario DROP CONSTRAINT IF EXISTS horario_turno_check;

@@ -1,7 +1,7 @@
 // API pública: información del salón, disponibilidad por turno y reserva.
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { AJUSTES_POR_DEFECTO, SERVICIOS, TURNOS } from '../config.js';
+import { AJUSTES_POR_DEFECTO, PRODUCTOS, SERVICIOS, TURNOS } from '../config.js';
 import { validarCita, validarConsulta } from '../validacion.js';
 import {
   crearCita,
@@ -28,7 +28,7 @@ function limitador(windowMs, limit, mensaje, activo) {
   });
 }
 
-export function rutasPublicas({ db, notificador, ahora, limitar }) {
+export function rutasPublicas({ db, notificador, ahora, limitar, pagos }) {
   const router = Router();
   const limiteConsultas = limitador(VENTANA_MS, MAX_CONSULTAS, 'Demasiadas consultas. Prueba en unos minutos.', limitar);
   const limiteReservas = limitador(VENTANA_RESERVA_MS, MAX_RESERVAS, 'Demasiadas reservas desde tu conexión. Llámanos, por favor.', limitar);
@@ -44,6 +44,8 @@ export function rutasPublicas({ db, notificador, ahora, limitar }) {
         telefono: ajustes.telefono_salon,
         servicios: SERVICIOS,
         turnos: TURNOS,
+        productos: PRODUCTOS,
+        pagoOnline: pagos.activo,
         hoy,
         ultimoDia: sumarDias(hoy, ajustes.max_dias),
         horario: horario.map(({ dia_semana, turno, inicio, fin, activo }) => (

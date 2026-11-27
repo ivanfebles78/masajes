@@ -75,6 +75,20 @@
 .boton-mini:hover { background: var(--bermellon); color: var(--blanco-roto); border-color: var(--bermellon); }
 .vacio { padding: 2.5rem 1rem; text-align: center; font-family: var(--serif); font-size: 1.2rem; color: var(--tinta-suave); border: 1.5px dashed var(--linea); }
 
+/* Pedidos */
+.pedido {
+  display: grid; grid-template-columns: 8.5rem minmax(0, 1.1fr) minmax(0, 1.4fr) auto; align-items: start; gap: 0.4rem 1.4rem;
+  padding: 1rem 0.4rem; border-bottom: 1px solid var(--linea);
+}
+.pedido:first-child { border-top: 2px solid var(--tinta); }
+.pedido.es-secundario { opacity: 0.55; }
+.pedido__codigo { font-family: var(--serif); font-size: 1.15rem; font-weight: 800; }
+.pedido__fecha { font-size: 0.8rem; color: var(--tinta-suave); font-variant-numeric: tabular-nums; }
+.pedido__lineas { list-style: none; margin: 0; padding: 0; font-size: 0.92rem; display: grid; gap: 0.2rem; }
+.pedido__regalo { margin-top: 0.3rem; font-size: 0.88rem; color: var(--bermellon-hondo); font-weight: 500; }
+.pedido__total { display: grid; justify-items: end; gap: 0.4rem; }
+.pedido__total strong { font-family: var(--serif); font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+
 /* Horario: una fila por día y una columna por turno, todo en una línea. */
 .tabla-horario { --ancho-hora: 6.6rem; display: grid; margin-bottom: 1.8rem; }
 .fila-horario {
@@ -120,6 +134,8 @@
 }
 @media (max-width: 780px) {
   .cita { grid-template-columns: 5rem 1fr; }
+  .pedido { grid-template-columns: 1fr; }
+  .pedido__total { justify-items: start; }
   .cita__contacto, .cita__accion { grid-column: 2; }
   .dos-columnas { grid-template-columns: 1fr; }
   .barra .boton { margin-left: 0; }

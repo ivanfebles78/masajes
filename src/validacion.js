@@ -1,5 +1,5 @@
 // Validación de entradas en el borde del sistema.
-import { CANALES, LIMITES, TURNOS, buscarServicio } from './config.js';
+import { CANALES, LIMITES, PRODUCTOS, TURNOS, buscarProducto, buscarServicio } from './config.js';
 import { aMinutos, esFechaValida, esHoraValida } from './slots.js';
 
 export class ErrorValidacion extends Error {
@@ -13,8 +13,11 @@ export class ErrorValidacion extends Error {
 const RE_EMAIL = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/;
 const RE_TELEFONO = /^\+\d{9,15}$/;
 
+// Se quitan los caracteres de control: Postgres rechaza el NUL y los demás no aportan nada.
+const RE_CONTROL = /[\u0000-\u001f\u007f]/g;
+
 function texto(valor) {
-  return typeof valor === 'string' ? valor.trim() : '';
+  return typeof valor === 'string' ? valor.replace(RE_CONTROL, ' ').trim() : '';
 }
 
 /** Devuelve el teléfono en formato +34XXXXXXXXX o null si no es válido. */
@@ -80,6 +83,47 @@ export function validarCita(cuerpo) {
   }
 
   return { fecha, turno, servicio, duracion, hora, nombre, telefono, email: email || null, canal };
+}
+
+export function validarPedido(cuerpo) {
+  const pedidas = cuerpo?.lineas;
+  if (!Array.isArray(pedidas) || pedidas.length === 0 || pedidas.length > PRODUCTOS.length) {
+    throw new ErrorValidacion('El carrito está vacío.', 'lineas');
+  }
+  const vistos = new Set();
+  const lineas = pedidas.map((linea) => {
+    const id = texto(linea?.id);
+    const cantidad = Number(linea?.cantidad);
+    if (!buscarProducto(id) || vistos.has(id)) throw new ErrorValidacion('Hay un producto no válido en el carrito.', 'lineas');
+    if (!Number.isInteger(cantidad) || cantidad < 1 || cantidad > LIMITES.UNIDADES_MAX_POR_PRODUCTO) {
+      throw new ErrorValidacion(`Puedes pedir entre 1 y ${LIMITES.UNIDADES_MAX_POR_PRODUCTO} unidades de cada producto.`, 'lineas');
+    }
+    vistos.add(id);
+    return { id, cantidad };
+  });
+
+  const nombre = texto(cuerpo?.nombre).replace(/\s+/g, ' ');
+  if (nombre.length < LIMITES.NOMBRE_MIN || nombre.length > LIMITES.NOMBRE_MAX) {
+    throw new ErrorValidacion('Indícanos tu nombre.', 'nombre');
+  }
+  const email = texto(cuerpo?.email).toLowerCase();
+  if (!email || email.length > LIMITES.EMAIL_MAX || !RE_EMAIL.test(email)) {
+    throw new ErrorValidacion('Necesitamos un correo válido para enviarte el justificante.', 'email');
+  }
+  const telefonoBruto = texto(cuerpo?.telefono);
+  const telefono = normalizarTelefono(telefonoBruto);
+  if (telefonoBruto && !telefono) throw new ErrorValidacion('El teléfono no parece correcto.', 'telefono');
+
+  const esRegalo = cuerpo?.es_regalo === true;
+  return {
+    lineas,
+    nombre,
+    email,
+    telefono,
+    es_regalo: esRegalo,
+    regalo_para: esRegalo ? texto(cuerpo?.regalo_para).slice(0, LIMITES.REGALO_PARA_MAX) : '',
+    regalo_mensaje: esRegalo ? texto(cuerpo?.regalo_mensaje).slice(0, LIMITES.REGALO_MENSAJE_MAX) : '',
+  };
 }
 
 const MAX_FILAS_HORARIO = 7 * TURNOS.length;

@@ -1,8 +1,8 @@
 // Panel de administración.
-import { api, el, DIAS, NOMBRE_TURNO, NOMBRE_CANAL, fechaLarga, mayuscula, pintarNombre } from '/js/comun.js';
+import { api, el, euros, DIAS, NOMBRE_TURNO, NOMBRE_CANAL, fechaLarga, mayuscula, pintarNombre } from '/js/comun.js';
 
 const $ = (id) => document.getElementById(id);
-const SECCIONES = ['citas', 'horario', 'bloqueos', 'ajustes'];
+const SECCIONES = ['citas', 'pedidos', 'horario', 'bloqueos', 'ajustes'];
 const NOMBRE_SERVICIO = { shiatsu: 'Shiatsu Zen', camilla: 'Masaje en camilla' };
 const MS_AVISO = 4000;
 const TURNOS = ['manana', 'mediodia', 'tarde'];
@@ -106,6 +106,42 @@ async function cancelarCita(cita) {
   if (!hecho) return;
   avisar('Cita cancelada.');
   await cargarCitas();
+}
+
+/* ---------- Pedidos ---------- */
+const ESTADO_PEDIDO = {
+  pagado: { texto: 'Pagado', clase: 'enviado' },
+  pendiente: { texto: 'Sin pagar', clase: 'simulado' },
+  cancelado: { texto: 'Cancelado', clase: 'error' },
+};
+
+function filaPedido(pedido) {
+  const estado = ESTADO_PEDIDO[pedido.estado] ?? { texto: pedido.estado, clase: 'simulado' };
+  const contacto = [el('a', { href: `mailto:${pedido.email}`, text: pedido.email })];
+  if (pedido.telefono) contacto.push(' · ', el('a', { href: `tel:${pedido.telefono}`, text: pedido.telefono }));
+  const regalo = pedido.es_regalo
+    ? el('p', { class: 'pedido__regalo', text: `Regalo${pedido.regalo_para ? ` para ${pedido.regalo_para}` : ''}${pedido.regalo_mensaje ? `: «${pedido.regalo_mensaje}»` : ''}` })
+    : null;
+  return el('article', { class: `pedido${pedido.estado === 'pagado' ? '' : ' es-secundario'}` },
+    el('div', {},
+      el('p', { class: 'pedido__codigo', text: pedido.codigo }),
+      el('p', { class: 'pedido__fecha', text: pedido.creado })),
+    el('div', {},
+      el('p', { class: 'cita__nombre', text: pedido.nombre }),
+      el('p', { class: 'cita__contacto' }, contacto),
+      regalo),
+    el('ul', { class: 'pedido__lineas' }, pedido.lineas.map((l) => el('li', { text: `${l.cantidad} × ${l.nombre}` }))),
+    el('div', { class: 'pedido__total' },
+      el('strong', { text: euros(pedido.total_cent) }),
+      el('span', { class: `etiqueta etiqueta--${estado.clase}`, text: estado.texto })));
+}
+
+async function cargarPedidos() {
+  const datos = await intentar(() => api('/api/admin/pedidos'));
+  if (!datos) return;
+  $('lista-pedidos').replaceChildren(...(datos.pedidos.length > 0
+    ? datos.pedidos.map(filaPedido)
+    : [el('p', { class: 'vacio', text: 'Todavía no hay pedidos.' })]));
 }
 
 /* ---------- Horario ---------- */
@@ -235,7 +271,7 @@ async function cambiarClave(evento) {
 }
 
 /* ---------- Navegación y sesión ---------- */
-const CARGADORES = { citas: cargarCitas, horario: cargarHorario, bloqueos: cargarBloqueos, ajustes: cargarAjustes };
+const CARGADORES = { citas: cargarCitas, pedidos: cargarPedidos, horario: cargarHorario, bloqueos: cargarBloqueos, ajustes: cargarAjustes };
 
 function abrirPestana(nombre) {
   for (const seccion of SECCIONES) {
