@@ -75,15 +75,28 @@
 .boton-mini:hover { background: var(--bermellon); color: var(--blanco-roto); border-color: var(--bermellon); }
 .vacio { padding: 2.5rem 1rem; text-align: center; font-family: var(--serif); font-size: 1.2rem; color: var(--tinta-suave); border: 1.5px dashed var(--linea); }
 
-/* Horario */
-.tabla-horario { display: grid; gap: 0.2rem; margin-bottom: 1.8rem; }
-.fila-horario { display: grid; grid-template-columns: 7rem repeat(3, minmax(0, 1fr)); gap: 1rem; align-items: center; padding: 0.8rem 0; border-bottom: 1px solid var(--linea); }
+/* Horario: una fila por día y una columna por turno, todo en una línea. */
+.tabla-horario { --ancho-hora: 6.6rem; display: grid; margin-bottom: 1.8rem; }
+.fila-horario {
+  display: grid; grid-template-columns: 7.5rem repeat(3, 17rem); justify-content: start;
+  column-gap: 1.6rem; align-items: center; padding: 0.7rem 0; border-bottom: 1px solid var(--linea);
+}
+.fila-horario--cabecera {
+  padding: 0 0 0.6rem; border-bottom: 2px solid var(--tinta);
+  font-size: 0.78rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--tinta-suave);
+}
+.fila-horario--cabecera span { padding-left: 1.9rem; }
 .fila-horario__dia { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; }
-.turno-edit { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
-.turno-edit label { display: flex; align-items: center; gap: 0.4rem; min-width: 5.6rem; }
-.turno-edit input[type='checkbox'] { width: 1.1rem; height: 1.1rem; accent-color: var(--bermellon); }
-.turno-edit input[type='time'] { width: auto; padding: 0.5rem 0.6rem; }
-.turno-edit.es-inactivo input[type='time'] { opacity: 0.4; }
+.turno-edit {
+  display: grid; grid-template-columns: auto var(--ancho-hora) auto var(--ancho-hora);
+  justify-content: start; align-items: center; gap: 0.5rem; white-space: nowrap;
+}
+.turno-edit__activo { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+.turno-edit__nombre { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.turno-edit__guion { color: var(--tinta-suave); }
+.turno-edit input[type='checkbox'] { width: 1.15rem; height: 1.15rem; margin: 0; accent-color: var(--bermellon); }
+.turno-edit input[type='time'] { width: var(--ancho-hora); padding: 0.5rem 0.55rem; font-variant-numeric: tabular-nums; }
+.turno-edit.es-inactivo input[type='time'], .turno-edit.es-inactivo .turno-edit__guion { opacity: 0.35; }
 
 .lista-bloqueos { list-style: none; padding: 0; margin: 2rem 0 0; }
 .lista-bloqueos li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem 1rem; padding: 0.9rem 0; border-bottom: 1px solid var(--linea); }
@@ -93,13 +106,21 @@
 .dos-columnas { display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; align-items: start; }
 .tarjeta { padding: 1.8rem; background: var(--blanco-roto); border: 1px solid var(--linea); box-shadow: 8px 8px 0 var(--papel-hondo); }
 
-@media (max-width: 1100px) {
-  .fila-horario { grid-template-columns: 1fr; gap: 0.5rem; }
+/* Sin sitio para tres columnas: cada día en un bloque y cada turno en su línea. */
+@media (max-width: 1180px) {
+  .fila-horario { grid-template-columns: 1fr; row-gap: 0.45rem; padding: 1rem 0; }
+  .fila-horario--cabecera { display: none; }
+  .tabla-horario { border-top: 2px solid var(--tinta); }
+  .turno-edit { grid-template-columns: 7.5rem var(--ancho-hora) auto var(--ancho-hora); }
+  .turno-edit__nombre { position: static; width: auto; height: auto; overflow: visible; clip-path: none; font-weight: 700; font-size: 0.9rem; }
+}
+@media (max-width: 420px) {
+  .tabla-horario { --ancho-hora: 5.6rem; }
+  .turno-edit { grid-template-columns: 6.6rem var(--ancho-hora) auto var(--ancho-hora); gap: 0.35rem; }
 }
 @media (max-width: 780px) {
   .cita { grid-template-columns: 5rem 1fr; }
   .cita__contacto, .cita__accion { grid-column: 2; }
-  .fila-horario { grid-template-columns: 1fr; gap: 0.5rem; }
   .dos-columnas { grid-template-columns: 1fr; }
   .barra .boton { margin-left: 0; }
 }

@@ -114,9 +114,9 @@ function editorTurno(fila) {
   const activo = el('input', { type: 'checkbox', checked: fila.activo, 'data-campo': 'activo' });
   activo.addEventListener('change', () => caja.classList.toggle('es-inactivo', !activo.checked));
   caja.append(
-    el('label', {}, activo, NOMBRE_TURNO[fila.turno]),
+    el('label', { class: 'turno-edit__activo' }, activo, el('span', { class: 'turno-edit__nombre', text: NOMBRE_TURNO[fila.turno] })),
     el('input', { type: 'time', value: fila.inicio, step: '300', 'data-campo': 'inicio', 'aria-label': `Inicio ${NOMBRE_TURNO[fila.turno]} ${DIAS[fila.dia_semana - 1]}` }),
-    '–',
+    el('span', { class: 'turno-edit__guion', 'aria-hidden': 'true', text: '–' }),
     el('input', { type: 'time', value: fila.fin, step: '300', 'data-campo': 'fin', 'aria-label': `Fin ${NOMBRE_TURNO[fila.turno]} ${DIAS[fila.dia_semana - 1]}` }),
   );
   return caja;
@@ -130,7 +130,10 @@ function pintarHorario(horario) {
       el('p', { class: 'fila-horario__dia', text: nombre }),
       orden.map(editorTurno));
   });
-  $('tabla-horario-admin').replaceChildren(...filas);
+  const cabecera = el('div', { class: 'fila-horario fila-horario--cabecera', 'aria-hidden': 'true' },
+    el('span'),
+    TURNOS.map((turno) => el('span', { text: NOMBRE_TURNO[turno] })));
+  $('tabla-horario-admin').replaceChildren(cabecera, ...filas);
 }
 
 async function cargarHorario() {
